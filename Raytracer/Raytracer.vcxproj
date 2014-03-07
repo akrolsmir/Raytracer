@@ -81,6 +81,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="color.h" />
+    <ClInclude Include="point.h" />
     <ClInclude Include="GraphVector.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="shader.h" />
@@ -88,6 +90,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="auxilliary.cpp" />
+    <ClCompile Include="color.cpp" />
+    <ClCompile Include="point.cpp" />
     <ClCompile Include="Raytracer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
