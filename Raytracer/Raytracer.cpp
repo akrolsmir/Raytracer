@@ -193,89 +193,89 @@ void writeImage(string filename) {
 //****************************************************
 // the usual stuff, nothing exciting here
 //****************************************************
-int main(int argc, char *argv[]) {
-	int i = 1;
-	string opt, filename;
-	float x, y, z, r, g, b;
-
-	while (i < argc){
-		opt = argv[i];
-
-		if (opt == "-ka"){			// set ambient color coefficients
-			r = atof(argv[i + 1]), g = atof(argv[i + 2]), b = atof(argv[i + 3]);
-			*ka = Vec3(r, g, b);
-			i += 4;
-		}
-		else if (opt == "-kd"){		// set diffuse color coefficients
-			r = atof(argv[i + 1]), g = atof(argv[i + 2]), b = atof(argv[i + 3]);
-			*kd = Vec3(r, g, b);
-			i += 4;
-		}
-		else if (opt == "-ks"){		// set specular color coefficients
-			r = atof(argv[i + 1]), g = atof(argv[i + 2]), b = atof(argv[i + 3]);
-			*ks = Vec3(r, g, b);
-			i += 4;
-		}
-		else if (opt == "-sp"){		// set specular power coefficient
-			sp = atof(argv[i + 1]);
-			i += 2;
-		}
-		else if (opt == "-pl"){		// add a point light
-			x = atof(argv[i + 1]), y = atof(argv[i + 2]), z = atof(argv[i + 3]);
-			r = atof(argv[i + 4]), g = atof(argv[i + 5]), b = atof(argv[i + 6]);
-			PointLight* pl = new PointLight(x, y, z, r, g, b);
-			lights.push_back(pl);
-			pointLights.push_back(pl);
-			i += 7;
-		}
-		else if (opt == "-dl"){		// add a directional light
-			x = atof(argv[i + 1]), y = atof(argv[i + 2]), z = atof(argv[i + 3]);
-			r = atof(argv[i + 4]), g = atof(argv[i + 5]), b = atof(argv[i + 6]);
-			DirectionLight* pl = new DirectionLight(x, y, z, r, g, b);
-			lights.push_back(pl);
-			i += 7;
-		}
-		else if (opt == "-wi"){		// write image to file
-			filename = argv[i + 1];
-			i += 2;
-		}
-		else if (opt == "-wh"){		// set initial width and height
-			viewport.w = atoi(argv[i + 1]);
-			viewport.h = atoi(argv[i + 2]);
-			i += 3;
-		}
-		else if (opt == "-an"){		// animate
-			maxFrames = atoi(argv[i + 1]);
-			i += 2;
-		}
-		else if (opt == "-as"){		// anisotropic brdf
-			isAnisotropic = true;
-			nu = atof(argv[i + 1]);
-			nv = atof(argv[i + 2]);
-			i += 3;
-		}
-		else if (opt == "-sil"){	// silhouette
-			silhouette = new Vec3(atof(argv[i + 1]), atof(argv[i + 2]), atof(argv[i + 3]));
-			i += 4;
-		}
-		else if (opt == "-cw"){		// warm-to-cool shading
-			cw = new Vec3(atof(argv[i + 1]), atof(argv[i + 2]), atof(argv[i + 3]));
-			cc = new Vec3(atof(argv[i + 4]), atof(argv[i + 5]), atof(argv[i + 6]));
-			i += 7;
-		}
-		else if (opt == "-t"){      // toon shading
-			gradient = atoi(argv[i + 1]);
-			i += 2;
-		}
-		else {						// bad cmd line argument
-			cout << "ERROR: Received \"" << opt << "\" as flag.\n";
-			i++;
-		}
-	}
-	if (filename.size() > 0)
-		writeImage(filename);
-	return 0;
-}
+//int main(int argc, char *argv[]) {
+//	int i = 1;
+//	string opt, filename;
+//	float x, y, z, r, g, b;
+//
+//	while (i < argc){
+//		opt = argv[i];
+//
+//		if (opt == "-ka"){			// set ambient color coefficients
+//			r = atof(argv[i + 1]), g = atof(argv[i + 2]), b = atof(argv[i + 3]);
+//			*ka = Vec3(r, g, b);
+//			i += 4;
+//		}
+//		else if (opt == "-kd"){		// set diffuse color coefficients
+//			r = atof(argv[i + 1]), g = atof(argv[i + 2]), b = atof(argv[i + 3]);
+//			*kd = Vec3(r, g, b);
+//			i += 4;
+//		}
+//		else if (opt == "-ks"){		// set specular color coefficients
+//			r = atof(argv[i + 1]), g = atof(argv[i + 2]), b = atof(argv[i + 3]);
+//			*ks = Vec3(r, g, b);
+//			i += 4;
+//		}
+//		else if (opt == "-sp"){		// set specular power coefficient
+//			sp = atof(argv[i + 1]);
+//			i += 2;
+//		}
+//		else if (opt == "-pl"){		// add a point light
+//			x = atof(argv[i + 1]), y = atof(argv[i + 2]), z = atof(argv[i + 3]);
+//			r = atof(argv[i + 4]), g = atof(argv[i + 5]), b = atof(argv[i + 6]);
+//			PointLight* pl = new PointLight(x, y, z, r, g, b);
+//			lights.push_back(pl);
+//			pointLights.push_back(pl);
+//			i += 7;
+//		}
+//		else if (opt == "-dl"){		// add a directional light
+//			x = atof(argv[i + 1]), y = atof(argv[i + 2]), z = atof(argv[i + 3]);
+//			r = atof(argv[i + 4]), g = atof(argv[i + 5]), b = atof(argv[i + 6]);
+//			DirectionLight* pl = new DirectionLight(x, y, z, r, g, b);
+//			lights.push_back(pl);
+//			i += 7;
+//		}
+//		else if (opt == "-wi"){		// write image to file
+//			filename = argv[i + 1];
+//			i += 2;
+//		}
+//		else if (opt == "-wh"){		// set initial width and height
+//			viewport.w = atoi(argv[i + 1]);
+//			viewport.h = atoi(argv[i + 2]);
+//			i += 3;
+//		}
+//		else if (opt == "-an"){		// animate
+//			maxFrames = atoi(argv[i + 1]);
+//			i += 2;
+//		}
+//		else if (opt == "-as"){		// anisotropic brdf
+//			isAnisotropic = true;
+//			nu = atof(argv[i + 1]);
+//			nv = atof(argv[i + 2]);
+//			i += 3;
+//		}
+//		else if (opt == "-sil"){	// silhouette
+//			silhouette = new Vec3(atof(argv[i + 1]), atof(argv[i + 2]), atof(argv[i + 3]));
+//			i += 4;
+//		}
+//		else if (opt == "-cw"){		// warm-to-cool shading
+//			cw = new Vec3(atof(argv[i + 1]), atof(argv[i + 2]), atof(argv[i + 3]));
+//			cc = new Vec3(atof(argv[i + 4]), atof(argv[i + 5]), atof(argv[i + 6]));
+//			i += 7;
+//		}
+//		else if (opt == "-t"){      // toon shading
+//			gradient = atoi(argv[i + 1]);
+//			i += 2;
+//		}
+//		else {						// bad cmd line argument
+//			cout << "ERROR: Received \"" << opt << "\" as flag.\n";
+//			i++;
+//		}
+//	}
+//	if (filename.size() > 0)
+//		writeImage(filename);
+//	return 0;
+//}
 
 
 

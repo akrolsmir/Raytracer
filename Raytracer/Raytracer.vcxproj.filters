@@ -21,9 +21,6 @@
     <ClInclude Include="GraphVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lights.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -43,6 +40,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Film.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -66,6 +72,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Film.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
