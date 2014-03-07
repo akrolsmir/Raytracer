@@ -18,9 +18,14 @@ public:
 	Color();
 
 	/**
+	* Same constructor as Vector3f
+	*/
+	Color(float a, float b, float c);
+
+	/**
 	* Initializes from values from col
 	*/
-	Color(Vector3f* col);
+	Color(Vector3f col);
 
 	/**
 	* Set the color's RGB values to r,g,b.

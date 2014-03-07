@@ -30,6 +30,16 @@ public:
 	 */
 	Point* calculatePosition(float t);
 
+	/**
+	 * Returns a copy of the position
+	 */
+	Point* getPos();
+
+	/**
+	 * Returns a copy of the direction
+	 */
+	Vector3f* getDir();
+
 private:
 	Point pos;
 	Vector3f dir;

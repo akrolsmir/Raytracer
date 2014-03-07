@@ -3,10 +3,11 @@
 Color::Color() : 
 	Vector3f(){/*nothing*/}
 
-Color::Color(Vector3f* col){
-	this->operator()(0) = col->operator()(0);
-	this->operator()(1) = col->operator()(1);
-	this->operator()(2) = col->operator()(2);
+Color::Color(float a, float b, float c) :
+	Vector3f(a, b, c){/* nothing */}
+
+Color::Color(Vector3f col){
+	*this = col;
 }
 
 void Color::setRGB(float r, float g, float b){

@@ -18,9 +18,14 @@ public:
 	Point();
 
 	/**
+	 * Same constructor as Vector3f
+	 */
+	Point(float a, float b, float c);
+
+	/**
 	 * Initializes from values from p
 	 */
-	Point(Vector3f* p);
+	Point(Vector3f p);
 
 	/**
 	 * Set the point's coordinate's to x,y,z

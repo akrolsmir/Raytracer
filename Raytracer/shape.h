@@ -39,7 +39,7 @@ public:
 	/**
 	 * Constructs the sphere centered at c with radius r
 	 */
-	Sphere(Point c, float r);
+	Sphere(Point* c, float r);
 	
 	bool intersect(Ray* ray, float* t_hit, Local* local);
 
@@ -65,7 +65,7 @@ public:
 	/**
 	 * Constructs the triangle with vertices a, b, c
 	 */
-	Triangle(Point a, Point b, Point c);
+	Triangle(Point* a, Point* b, Point* c);
 
 	bool intersect(Ray* ray, float* t_hit, Local* local);
 

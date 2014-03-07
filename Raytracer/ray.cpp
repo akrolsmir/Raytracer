@@ -12,5 +12,13 @@ Point* Ray::calculatePosition(float t){
 		return NULL;
 	}
 	Vector3f result = pos + t*dir;
-	return new Point(&result);
+	return new Point(result);
+}
+
+Point* Ray::getPos(){
+	return new Point(pos);
+}
+
+Vector3f* Ray::getDir(){
+	return new Vector3f(dir);
 }

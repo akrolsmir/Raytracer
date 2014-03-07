@@ -7,6 +7,11 @@
 
 #include "point.h"
 
+/**
+ * A local geometry is composed of a point on the
+ * surface of an object and the normal vector to
+ * the surface. 
+ */
 class Local{
 public:
 
@@ -22,8 +27,8 @@ public:
 	Point* getPoint();
 
 	/**
-	 * Returns a copy of the normal at p. Is 0 if
-	 * p is not on the boundary of some primitive.
+	 * Returns a copy of the normal at p, assuming that
+	 * this is a valid local geometry
 	 */
 	Vector3f* getNormal();
 

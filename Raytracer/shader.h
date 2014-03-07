@@ -2,6 +2,15 @@
 #define SHADER_H
 
 #include "Vec3.h"
+#include "color.h"
+
+class BRDF{
+public:
+	Color kd;
+	Color ks;
+	Color ka;
+	Color kr;
+};
 
 //****************************************************
 // Calculate the diffuse component of a point
