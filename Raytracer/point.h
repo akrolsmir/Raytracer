@@ -13,6 +13,16 @@ class Point : public Vector3f{
 public:
 
 	/**
+	 * Same constructor as Vector3f
+	 */
+	Point();
+
+	/**
+	 * Initializes from values from p
+	 */
+	Point(Vector3f* p);
+
+	/**
 	 * Set the point's coordinate's to x,y,z
 	 */
 	void setLoc(float x, float y, float z);
@@ -20,7 +30,7 @@ public:
 	/**
 	 * Set the point's coordinate's to loc
 	 */
-	void setLoc(Vector3f loc);
+	void setLoc(Vector3f* loc);
 
 	/**
 	 * Set my X value to x

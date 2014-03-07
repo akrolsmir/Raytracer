@@ -1,15 +1,24 @@
 #include "color.h"
 
+Color::Color() : 
+	Vector3f(){/*nothing*/}
+
+Color::Color(Vector3f* col){
+	this->operator()(0) = col->operator()(0);
+	this->operator()(1) = col->operator()(1);
+	this->operator()(2) = col->operator()(2);
+}
+
 void Color::setRGB(float r, float g, float b){
 	this->operator()(0) = r;
 	this->operator()(1) = g;
 	this->operator()(2) = b;
 }
 
-void Color::setRGB(Vector3f loc){
-	this->operator()(0) = loc(0);
-	this->operator()(1) = loc(1);
-	this->operator()(2) = loc(2);
+void Color::setRGB(Vector3f* rgb){
+	this->operator()(0) = rgb->operator()(0);
+	this->operator()(1) = rgb->operator()(1);
+	this->operator()(2) = rgb->operator()(2);
 }
 
 void Color::setR(float r){

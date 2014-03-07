@@ -13,6 +13,16 @@ class Color : public Vector3f{
 public:
 
 	/**
+	 * Default constructor same as superclass
+	 */
+	Color();
+
+	/**
+	* Initializes from values from col
+	*/
+	Color(Vector3f* col);
+
+	/**
 	* Set the color's RGB values to r,g,b.
 	*/
 	void setRGB(float r, float g, float b);
@@ -20,7 +30,7 @@ public:
 	/**
 	* Set the colors's RGB values to rgb
 	*/
-	void setRGB(Vector3f rgb);
+	void setRGB(Vector3f* rgb);
 
 	/**
 	* Set my red value to r
