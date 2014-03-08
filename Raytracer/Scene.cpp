@@ -3,28 +3,28 @@
 
 #include "Film.h"
 #include "color.h"
-#include "Sampler.h"
-
 using namespace std;
 
 int main() {
 	clock_t start = clock();
-
-	int width = 500, height = 500;
-
-	Sampler sampler = Sampler(width, height);
+	int width = 1000, height = 1000;
+	float nextX = 0.5, nextY = 0.5;
 	Color black = Color(0, 0, 0);
 
 	Film film = Film(width, height);
 
-	while (sampler.hasNext()) {
-		Sample* sample = sampler.generateSample();
-		film.storeSample(sample->x, sample->y, black);
-		free(sample);
+	while (nextY <= height) {
+		film.storeSample(nextX, nextY, black);
+
+		// Calculate next sample location
+		if (++nextX >= width) {
+			nextY++;
+			nextX = 0.5;
+		}
 	}
 	
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	film.writeImage("output.png");
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
-	//cin.ignore();
+	cin.ignore();
 }

@@ -88,7 +88,6 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="GraphVector.h" />
-    <ClInclude Include="Sampler.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="Vec3.h" />
@@ -102,7 +101,6 @@
     <ClCompile Include="Raytracer.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="Film.cpp" />
-    <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
