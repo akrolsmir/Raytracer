@@ -10,7 +10,7 @@ using namespace std;
 int main() {
 	clock_t start = clock();
 
-	int width = 300, height = 300;
+	int width = 500, height = 500;
 
 	Sampler sampler = Sampler(width, height);
 	Color black = Color(0, 0, 0);
@@ -23,7 +23,8 @@ int main() {
 		free(sample);
 	}
 	
+	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	film.writeImage("output.png");
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
-	cin.ignore();
+	//cin.ignore();
 }

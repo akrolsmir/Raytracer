@@ -18,7 +18,8 @@ public:
 	void storeSample(float x, float y, Color color);
 
 private:
-	Color* samples;
+	//Color* samples;
+	float *red, *green, *blue;
 	int* count;
 	//BYTE* frame; //Stored in BGR, not RGB, to play nice with FreeImage
 };
