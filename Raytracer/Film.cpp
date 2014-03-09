@@ -34,9 +34,9 @@ void Film::storeSample(float x, float y, Color color){
 	int xInt = (int) round(x - 0.5);
 	int yInt = (int) round(y - 0.5);
 	//samples[xInt + yInt * width] += color;
-	red[xInt + yInt * width] = color(0);
-	green[xInt + yInt * width] = color(1);
-	blue[xInt + yInt * width] = color(2);
+	red[xInt + yInt * width] += color.getR();
+	green[xInt + yInt * width] += color.getG();
+	blue[xInt + yInt * width] += color.getB();
 	//cout << "x: " << x << " y: " << y << " color: " << color << endl;
 	count[xInt + yInt * width]++;
 }
@@ -56,9 +56,9 @@ void Film::writeImage(string filename) {
 			//float r = min(1, max(0, color(0)));
 			//float g = min(1, max(0, color(1)));
 			//float b = min(1, max(0, color(2)));
-			frame[3 * (i + j * width)    ] = (BYTE)(red[i + j * width] / count[i + j * width] *255);
+			frame[3 * (i + j * width)    ] = (BYTE)(blue[i + j * width] / count[i + j * width] *255);
 			frame[3 * (i + j * width) + 1] = (BYTE)(green[i + j * width] / count[i + j * width] *255);
-			frame[3 * (i + j * width) + 2] = (BYTE)(blue[i + j * width] / count[i + j * width] *255);
+			frame[3 * (i + j * width) + 2] = (BYTE)(red[i + j * width] / count[i + j * width] *255);
 
 			//cout << "i: " << i << " j: " << j << " r: " << r << endl;
 		}
