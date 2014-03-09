@@ -76,7 +76,8 @@ public:
 	}
 
 	Ray* generateRay(Point* pixel_loc){
-		return new Ray(*location, *getDirection(pixel_loc), 0, INFINITY);
+		Point dir = *location - *pixel_loc;
+		return new Ray(*pixel_loc, dir, 0, 1);
 	};
 
 };

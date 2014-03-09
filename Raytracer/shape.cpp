@@ -22,6 +22,14 @@ bool Sphere::intersect(Ray* ray){
 	Vector3f d = ray->dir;
 	Point e = ray->pos - center;
 	float disc = d.dot(e) * d.dot(e) - d.dot(d) * (e.dot(e) - radius * radius);
+	if (disc < 0){
+		return false;
+	}
+	float t = (-e.dot(d) + sqrt(disc)) / d.dot(d);
+	if (ray->calculatePosition(t) == NULL){
+		t = (-e.dot(d) - sqrt(disc)) / d.dot(d);
+		if (ray->calculatePosition(t) == NULL) return false;
+	}
 	return disc >= 0;
 }
 
@@ -62,7 +70,7 @@ bool Triangle::intersect(Ray* ray){
 	Matrix3f tMatrix;
 	tMatrix << (a - b), (a - c), (a - rayStart);
 	float t = tMatrix.determinant() / MDet;
-	if (t < ray->t_min || t > ray->t_max){
+	if (ray->calculatePosition(t) == NULL){
 		return false;
 	}
 	Matrix3f gammaMatrix;
@@ -94,7 +102,7 @@ bool Triangle::intersect(Ray* ray, float* t_hit, Local* local){
 	Matrix3f tMatrix;
 	tMatrix << (a - b), (a - c), (a - rayStart);
 	float t = tMatrix.determinant() / MDet;
-	if (t < ray->t_min || t > ray->t_max){
+	if (ray->calculatePosition(t) == NULL){
 		return false;
 	}
 	Matrix3f gammaMatrix;

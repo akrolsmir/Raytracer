@@ -27,7 +27,7 @@ public:
 	};
 
 	Point* calculatePosition(float t){
-		if (t < t_min || t > t_max){
+		if (t <= t_min + .001 || t > t_max){
 			return NULL;
 		}
 		Vector3f result = pos + t*dir;
@@ -43,6 +43,9 @@ class BRDF{
 public:
 	Color ka, kd, ks, kr;
 	float sp;
+	BRDF() :
+		kd(Color()), ks(Color()), ka(Color()), sp(0.0){/*nothing*/
+	}
 
 	BRDF(Color ka, Color kd, Color ks, float sp) :
 		kd(kd), ks(ks), ka(ka), sp(sp){/*nothing*/

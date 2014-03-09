@@ -58,16 +58,18 @@ Color* traceRay(Ray* ray, int depth) {
 	}
 
 	BRDF brdf = in->primitive->getBRDF();
+	BRDF amb = BRDF(brdf.ka, Color(0,0,0), Color(0,0,0), 0);
 
 	for (Light* light : lights) {
-		shade(&(in->local), &brdf, light, result);
-		/*
+		//shade(&(in->local), &brdf, light, result);
 		Ray* lightRay = light->generateRay(&(in->local.pos));
-		if (in->primitive->intersect(lightRay)){
-			*result += *shade(&(in->local), &brdf, light);
+		if (!primitives.intersect(lightRay)){
+			shade(&(in->local), &brdf, light, result);
+		}
+		else{
+			shade(&(in->local), &amb, light, result);
 		}
 		delete lightRay;
-		*/
 		//*result += *shade(local, &brdf, light);
 	}
 
@@ -115,9 +117,6 @@ int main() {
 	LR = Point(1, -1, 1);
 	LL = Point(-1, -1, 1);
 
-	lights.push_back(new PointLight(200, 200, 200, 0.6, 0.6, 0.6));
-	lights.push_back(new DirectionLight(0, 1, -1, 0, 0.4, 0.4));
-
 	// Begin main loop
 	float nextX = 0.5, nextY = 0.5;
 
@@ -130,12 +129,15 @@ int main() {
 	BRDF(Color(0.1, 0.1, 0.0), Color(1.0, 1.0, 0.0), Color(0.8, 0.8, 0.8), 16)));
 	objs.push_back(new GeometricPrimitive(new Sphere(new Point(-0.5, -0.5, -10.0), 1.0),
 	BRDF(Color(0.1, 0.1, 0.0), Color(1.0, 1.0, 0.0), Color(0.8, 0.8, 0.8), 16)));
-	objs.push_back(new GeometricPrimitive(new Triangle(new Point(0.0, 0.0, -2.0), new Point(0.0, 0.5, -3.0), new Point(0.5, 0.0, -3.0)), 
+	objs.push_back(new GeometricPrimitive(new Triangle(new Point(-1.0, 0.0, -10.0), new Point(0.0, 1.8, -11.0), new Point(1.5, 0.0, -12.0)), 
 			BRDF(Color(0.1, 0.1, 0.1), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 0.0), 0)));
 
 	primitives = AggregatePrimitive(objs);
 
-	lights.push_back(new PointLight(0, 0, 3, 0.6, 0.6, 0.6));
+	lights.push_back(new PointLight(3, 3, 3, 0.6, 0.6, 0.6));
+	lights.push_back(new PointLight(200, 200, 200, 0.6, 0.6, 0.6));
+	lights.push_back(new DirectionLight(0, 1, -1, 0, 0.4, 0.4));
+
 	Ray* ray;
 	Color* color;
 
@@ -147,7 +149,7 @@ int main() {
 		film.storeSample(nextX, nextY, *color);
 
 		// Calculate next sample location
-		float step = 0.5;
+		float step = .5;
 		nextX += step;
 		if (nextX >= width) {
 			nextY += step;
@@ -156,7 +158,7 @@ int main() {
 		delete ray;
 		delete color;
 	}
-	film.writeImage("output.png");
+	film.writeImage("output3.png");
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	cout << "Enter to exit." << endl;
 	cin.ignore();
