@@ -62,7 +62,7 @@ public:
 	*/
 	Vector3f* getDirection(Point* pixel_loc) {
 		Vector3f* result = new Vector3f(0, 0, 0);
-		*result += *pixel_loc - *location;
+		*result += *location - *pixel_loc;
 		result->normalize();
 		return result;
 	};

@@ -34,9 +34,9 @@ void Film::storeSample(float x, float y, Color color){
 	int xInt = (int) round(x - 0.5);
 	int yInt = (int) round(y - 0.5);
 	//samples[xInt + yInt * width] += color;
-	red[xInt + yInt * width] += color.getR();
-	green[xInt + yInt * width] += color.getG();
-	blue[xInt + yInt * width] += color.getB();
+	red[xInt + yInt * width] += min(1, max(0, color.getR()));
+	green[xInt + yInt * width] += min(1, max(0, color.getG()));
+	blue[xInt + yInt * width] += min(1, max(0, color.getB()));
 	//cout << "x: " << x << " y: " << y << " color: " << color << endl;
 	count[xInt + yInt * width]++;
 }

@@ -32,7 +32,6 @@ public:
 	 */
 	Vector3f* getNormal();
 
-private:
 	Point pos;
 	Vector3f normal; //normalized vector.
 };
