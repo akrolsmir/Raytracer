@@ -33,8 +33,10 @@ bool Sphere::intersect(Ray* ray, float* t_hit, Local* local){
 	if (d.dot(d) <= 0) return false;
 	
 	*t_hit = (-e.dot(d) - sqrt(disc)) / d.dot(d);
-
-	if (ray->calculatePosition(*t_hit) == NULL) return false;
+	if (ray->calculatePosition(*t_hit) == NULL) {
+		*t_hit = (-e.dot(d) + sqrt(disc)) / d.dot(d);
+		if (ray->calculatePosition(*t_hit) == NULL) return false;
+	}
 
 	local->pos = *ray->calculatePosition(*t_hit);
 	local->normal = (local->pos - center).normalized();
