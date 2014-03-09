@@ -2,7 +2,7 @@
 #ifndef INTERSECT_H
 #define INTERSECT_H
 
-#include "local.h"
+#include "basic.h"
 #include "primitive.h"
 
 class Primitive;

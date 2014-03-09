@@ -4,7 +4,7 @@
 #include <windows.h>
 
 #include "FreeImage\FreeImage.h"
-#include "color.h"
+#include "basic.h"
 
 using namespace std;
 

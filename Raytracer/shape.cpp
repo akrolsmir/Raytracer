@@ -52,8 +52,8 @@ Triangle::Triangle(Point* a, Point* b, Point* c) :
 
 bool Triangle::intersect(Ray* ray){
 	Matrix3f M;
-	Vector3f rayStart = *(ray->getPos());
-	Vector3f rayDirection = *(ray->getDir());
+	Vector3f rayStart = ray->pos;
+	Vector3f rayDirection = ray->dir;
 	M << (a - b), (a - c), rayDirection;
 	float MDet = M.determinant();
 	if (MDet == 0) {
@@ -62,7 +62,7 @@ bool Triangle::intersect(Ray* ray){
 	Matrix3f tMatrix;
 	tMatrix << (a - b), (a - c), (a - rayStart);
 	float t = tMatrix.determinant() / MDet;
-	if (t < ray->getTMin() || t > ray->getTMax()){
+	if (t < ray->t_min || t > ray->t_max){
 		return false;
 	}
 	Matrix3f gammaMatrix;
@@ -84,8 +84,8 @@ bool Triangle::intersect(Ray* ray){
 
 bool Triangle::intersect(Ray* ray, float* t_hit, Local* local){
 	Matrix3f M;
-	Vector3f rayStart = *(ray->getPos());
-	Vector3f rayDirection = *(ray->getDir());
+	Vector3f rayStart = ray->pos;
+	Vector3f rayDirection = ray->dir;
 	M << (a - b), (a - c), rayDirection;
 	float MDet = M.determinant();
 	if (MDet == 0) {
@@ -94,7 +94,7 @@ bool Triangle::intersect(Ray* ray, float* t_hit, Local* local){
 	Matrix3f tMatrix;
 	tMatrix << (a - b), (a - c), (a - rayStart);
 	float t = tMatrix.determinant() / MDet;
-	if (t < ray->getTMin() || t > ray->getTMax()){
+	if (t < ray->t_min || t > ray->t_max){
 		return false;
 	}
 	Matrix3f gammaMatrix;

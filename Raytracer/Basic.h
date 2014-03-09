@@ -1,3 +1,6 @@
+#ifndef BASIC_H
+#define BASIC_H
+
 #include "Eigen\Dense"
 
 using namespace Eigen;
@@ -7,20 +10,45 @@ typedef Vector3f Vector;
 typedef Vector3f Color;
 typedef Vector3f Point;
 
-class Ray {
+class Local{
 public:
+	Local() : pos(Point()), normal(Vector3f()){};
+	Local(Point p, Vector3f norm) :
+		pos(p), normal(norm.normalized()) {/*nothing*/
+	};
 	Point pos;
-	Vector dir;
+	Vector3f normal;
 };
 
-class Scene {
+class Ray{
 public:
-	Point eyePos;
-	Point UL, UR, LL, LR;
-	int width, height;
+	Ray(Point p, Vector3f direction, float tMin, float tMax) :
+		pos(p), dir(direction), t_min(tMin), t_max(tMax){/*nothing*/
+	};
 
-	int main() {
-		cout << "HELLO WORLD" << endl;
-		cin.ignore();
+	Point* calculatePosition(float t){
+		if (t < t_min || t > t_max){
+			return NULL;
+		}
+		Vector3f result = pos + t*dir;
+		return new Point(result);
 	}
+
+	Point pos;
+	Vector3f dir;
+	float t_min, t_max;
 };
+
+class BRDF{
+public:
+	Color ka, kd, ks, kr;
+	float sp;
+
+	BRDF(Color ka, Color kd, Color ks, float sp) :
+		kd(kd), ks(ks), ka(ka), sp(sp){/*nothing*/
+	}
+
+};
+
+
+#endif BASIC_H

@@ -6,9 +6,7 @@
 #define LIGHT_H
 
 #include "Eigen\Dense"
-#include "Color.h"
-#include "Point.h"
-#include "ray.h"
+#include "basic.h"
 
 class Light;
 
@@ -51,7 +49,7 @@ public:
 	};
 
 	Ray* generateRay(Point* pixel_loc){
-		return new Ray(new Point(0.0, 0.0, 0.0), direction, -INFINITY, INFINITY);
+		return new Ray(Point(0.0, 0.0, 0.0), *direction, -INFINITY, INFINITY);
 	};
 };
 
@@ -78,7 +76,7 @@ public:
 	}
 
 	Ray* generateRay(Point* pixel_loc){
-		return new Ray(location, getDirection(pixel_loc), 0, INFINITY);
+		return new Ray(*location, *getDirection(pixel_loc), 0, INFINITY);
 	};
 
 };

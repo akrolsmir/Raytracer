@@ -3,16 +3,13 @@
 #include <vector>
 
 #include "Film.h"
-#include "color.h"
 #include "primitive.h"
-#include "point.h"
-#include "ray.h"
 #include "shape.h"
-#include "shader.h"
 #include "light.h"
-#include "local.h"
 
-#define pairwise(a, b) Color(a.getR() * b.getR(), a.getG() * b.getG(), a.getB() * b.getB())
+#include "basic.h"
+
+#define pairwise(a, b) Color(a(0) * b(0), a(1) * b(1), a(2) * b(2));
 
 using namespace std;
 
@@ -21,13 +18,6 @@ Point camera, UL, UR, LR, LL;
 vector<Light*> lights;
 
 AggregatePrimitive primitives;
-
-/*
-struct BRDF {
-	Color ka, kd, ks, kr;
-	float sp;
-};
-*/
 
 // Generates a ray from camera, through the screen coordinates x, y
 Ray* generateRay(float x, float y) {
@@ -52,7 +42,7 @@ void shade(Local* local, BRDF* brdf, Light* light, Color* result) {
 }
 
 float* t_hit = new float;
-Local* local = new Local(Point(), Vector3f());
+Local* local = new Local();
 
 Color* traceRay(Ray* ray, int depth) {
 	// Return black if depth exceeds threshold
@@ -117,7 +107,7 @@ int main() {
 	cout << "Starting clock..." << endl;
 
 	// Hardcoded test values
-	width = 600, height = 600;
+	width = 1000, height = 1000;
 
 	camera = Point(0, 0, 10);
 	UL = Point(-1, 1, 1);
@@ -149,19 +139,20 @@ int main() {
 	Ray* ray;
 	Color* color;
 
+	cout << "Starting render..." << endl;
+
 	while (nextY <= height) {
 		ray = generateRay(nextX, nextY);
 		color = traceRay(ray, 0);
 		film.storeSample(nextX, nextY, *color);
 
 		// Calculate next sample location
-		float step = 0.25;
+		float step = 0.5;
 		nextX += step;
 		if (nextX >= width) {
 			nextY += step;
 			nextX = 0.5;
 		}
-
 		delete ray;
 		delete color;
 	}

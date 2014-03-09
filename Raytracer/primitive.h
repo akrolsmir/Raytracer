@@ -5,9 +5,7 @@
 #ifndef PRIMITIVE_H
 #define PRIMITIVE_H
 
-#include "ray.h"
 #include "shape.h"
-#include "shader.h"
 #include "intersection.h"
 #include <vector>
 
