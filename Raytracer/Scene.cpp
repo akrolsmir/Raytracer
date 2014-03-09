@@ -1,24 +1,113 @@
 #include <iostream>
 #include <time.h>
+#include <vector>
 
 #include "Film.h"
 #include "color.h"
+#include "point.h"
+#include "ray.h"
+#include "shape.h"
+#include "light.h"
+#include "local.h"
+
+#define pairwise(a, b) Color(a.getR() * b.getR(), a.getG() * b.getG(), a.getB() * b.getB())
+
 using namespace std;
+
+int width = 500, height = 500;
+
+Point camera = Point(0, 0, 5);
+Point UL = Point(-1, 1, 0), UR = Point(1, 1, 0), LR = Point(1, -1, 0), LL = Point(-1, -1, 0);
+
+vector<Light*> lights;
+
+Sphere sphere = Sphere(new Point(0, 0, 0), 0.4);
+
+struct BRDF {
+	Color ka, kd, ks, kr;
+	float sp;
+};
+
+// Generates a ray from camera, through the screen coordinates x, y
+Ray* generateRay(float x, float y) {
+	float u = x / width, v = y / height;
+	Point p = (1 - u) * ((1 - v) * LL + v * UL) + u * ((1 - v) * LR + v * UR);
+	return new Ray(&camera, &(Vector3f)(p - camera), 1, INFINITY);
+}
+
+Color* shade(Local* local, BRDF* brdf, Light* light) {
+	Color* result = new Color();
+
+	// Ambient term
+	*result += brdf->ka;
+
+	// Diffuse term
+	float dot = light->getDirection(local->getPoint())->dot(*local->getNormal());
+	dot = max(0, dot);
+	*result += dot * pairwise(brdf->kd, (*light->color));
+
+	//TODO include specular term
+
+	return result;
+
+	// Javascript version of specular for reference
+	//function specular(loc, normal, light, ks, sp){
+	//	var l = light.getDirection(loc);
+	//	var reflect = $N.sub($N.mulSV(2 * $N.dot(l, normal), normal), l);
+	//	var viewer = norm([0, 0, canvas.width]);
+	//	var dot = Math.max(0, $N.dot(reflect, viewer));
+	//	return $N.mulVS($N.mul(ks, light.color), Math.pow(dot, sp));
+	//}
+
+}
+
+Color* traceRay(Ray* ray, int depth) {
+	// Return black if depth exceeds threshold
+	if (depth > 4) {
+		return new Color(0, 0, 0);
+	}
+
+	// for testing; TODO remove
+	return sphere.intersect(ray) ? new Color(0, 1, 0) : new Color(0, 0, 0);
+
+	//// HOW DO I POINTER?????
+	//float temp = 10;
+	//float* t_hit = &temp;
+	//Local* local = new Local(new Point(), new Vector3f());
+
+	//// Return black if no intersection
+	//if (!sphere.intersect(ray, t_hit, local)) { //TODO replace with AggregatePrimitive or Acceleration
+	//	return new Color(0, 0, 0);
+	//}
+
+	//// TODO Temporary test BRDF
+	//BRDF brdf;
+	//brdf.ka = Color(0.5, 0.1, 0.1);
+	//brdf.kd = Color(0, 0, 0);
+
+	//Color* result = new Color(0, 0, 0);
+	//for (Light* light : lights) {
+	//	*result += *shade(local, &brdf, light);
+	//}
+	////TODO handle mirror
+	//return result;
+}
 
 int main() {
 	clock_t start = clock();
-	int width = 1000, height = 1000;
 	float nextX = 0.5, nextY = 0.5;
-	Color black = Color(0, 0, 0);
+	Color black = Color(0, 0, 0), red = Color(1, 0, 0);
 
 	Film film = Film(width, height);
 
 	while (nextY <= height) {
-		film.storeSample(nextX, nextY, black);
+		film.storeSample(nextX, nextY, *traceRay(generateRay(nextX, nextY), 0));
 
 		// Calculate next sample location
-		if (++nextX >= width) {
-			nextY++;
+		float step = 1;
+		nextX += step;
+		if (nextX >= width) {
+			nextY += step;
 			nextX = 0.5;
 		}
 	}
@@ -26,5 +115,6 @@ int main() {
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	film.writeImage("output.png");
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
+	cout << "Enter to exit." << endl;
 	cin.ignore();
 }

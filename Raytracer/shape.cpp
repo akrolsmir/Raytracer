@@ -19,18 +19,33 @@ Sphere::Sphere(Point* c, float r) :
 	center(*c), radius(r){/*nothing*/}
 
 bool Sphere::intersect(Ray* ray){
-	Vector3f* direction = ray->getDir();
-	Point* pos = ray->getPos();
-	float result = sqrt(direction->dot((*pos - center)));
-	//TODO
-	delete pos;
-	delete direction;
-	return false;
+	Vector3f d = *ray->getDir();
+	Point e = *ray->getPos() - center;
+	float disc = d.dot(e) * d.dot(e) - d.dot(d) * (e.dot(e) - radius * radius);
+	return disc >= 0;
 }
 
+// WHY WON"T THIS WORK????
 bool Sphere::intersect(Ray* ray, float* t_hit, Local* local){
-	//TODO
-	return false;
+	Vector3f d = *ray->getDir();
+	Point e = *ray->getPos() - center;
+	float disc = d.dot(e) * d.dot(e) - d.dot(d) * (e.dot(e) - radius * radius);
+	if (disc < 0) return false;
+
+	std::cout << "D.D: " << d.dot(d) << std::endl;
+	float temp = (-e.dot(d) - disc) / d.dot(d);
+	std::cout << "T_HIT: " << *t_hit << std::endl;
+
+	if (d.dot(d) <= 0.0001) return false;
+	
+	*t_hit = temp;
+	
+	std::cout << ray << "," << t_hit << "," << local << std::endl;
+
+	//local->pos = ray->calculatePosition(*t_hit);
+	//local->normal = &((*local->pos - center).normalized());
+
+	return true;
 }
 
 Triangle::Triangle() :
