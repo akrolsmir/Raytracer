@@ -7,7 +7,9 @@ Point::Point(float a, float b, float c) :
 Vector3f(a, b, c){/* nothing */}
 
 Point::Point(Vector3f p){
-	*this = p;
+	this->operator()(0) = p.operator()(0);
+	this->operator()(1) = p.operator()(1);
+	this->operator()(2) = p.operator()(2);
 }
 
 void Point::setLoc(float x, float y, float z){
