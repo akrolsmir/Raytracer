@@ -30,9 +30,6 @@
     <ClInclude Include="primitive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="intersection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="basic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,12 +45,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="primitive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="intersection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

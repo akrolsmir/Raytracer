@@ -6,7 +6,6 @@
 #define PRIMITIVE_H
 
 #include "shape.h"
-#include "intersection.h"
 #include <vector>
 
 class Intersection;
@@ -31,6 +30,26 @@ public:
 	 */
 	virtual BRDF getBRDF();
 
+};
+
+/**
+* Wrapper class containing the local geometry of a point
+* on a primitive where a ray intersects the primitive
+*/
+class Intersection{
+public:
+	Local local;
+	Primitive* primitive;
+
+	/**
+	* Sets loc to a default local and primitive to NULL
+	*/
+	Intersection();
+
+	/**
+	* Initializes loc and primitive
+	*/
+	Intersection(Local loc, Primitive* primitive);
 };
 
 /**

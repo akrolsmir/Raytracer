@@ -92,3 +92,11 @@ bool AggregatePrimitive::intersect(Ray* ray){
 BRDF AggregatePrimitive::getBRDF(){
 	UNIMPLEMENTED("getBRDF");
 }
+
+Intersection::Intersection() :
+local(Local()), primitive(NULL){/*nothing*/
+}
+
+Intersection::Intersection(Local loc, Primitive* primitive) :
+local(loc), primitive(primitive){/*nothing*/
+}

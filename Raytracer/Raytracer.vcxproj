@@ -88,7 +88,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="intersection.h" />
     <ClInclude Include="primitive.h" />
     <ClInclude Include="basic.h" />
     <ClInclude Include="Film.h" />
@@ -96,7 +95,6 @@
     <ClInclude Include="shape.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="intersection.cpp" />
     <ClCompile Include="primitive.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="Film.cpp" />
