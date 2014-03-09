@@ -1,12 +1,4 @@
-#include <vector>
-#include <iostream>
-#include <string>
-#include <math.h>
-#include <windows.h>
-
-#include "FreeImage\FreeImage.h"
 #include "Film.h"
-#include "color.h"
 
 using namespace std;
 
@@ -33,12 +25,11 @@ Film::Film(int width, int height) : width(width), height(height) {
 void Film::storeSample(float x, float y, Color color){
 	int xInt = (int) round(x - 0.5);
 	int yInt = (int) round(y - 0.5);
-	//samples[xInt + yInt * width] += color;
-	red[xInt + yInt * width] += min(1, max(0, color.getR()));
-	green[xInt + yInt * width] += min(1, max(0, color.getG()));
-	blue[xInt + yInt * width] += min(1, max(0, color.getB()));
-	//cout << "x: " << x << " y: " << y << " color: " << color << endl;
-	count[xInt + yInt * width]++;
+	size_t index = min(width * height - 1, max(0, xInt + yInt * width));
+	red[index] += min(1, max(0, color(0)));
+	green[index] += min(1, max(0, color(1)));
+	blue[index] += min(1, max(0, color(2)));
+	count[index]++;
 }
 
 //****************************************************
