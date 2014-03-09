@@ -22,3 +22,11 @@ Point* Ray::getPos(){
 Vector3f* Ray::getDir(){
 	return new Vector3f(dir);
 }
+
+float Ray::getTMin(){
+	return t_min;
+}
+
+float Ray::getTMax(){
+	return t_max;
+}

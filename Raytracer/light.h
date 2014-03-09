@@ -8,6 +8,7 @@
 #include "Eigen\Dense"
 #include "Color.h"
 #include "Point.h"
+#include "ray.h"
 
 class Light;
 
@@ -21,6 +22,11 @@ public:
 	* Retrieves the direction vector from the pixel location to the light.
 	*/
 	virtual Vector3f* getDirection(Point* pixel_loc) = 0;
+
+	/**
+	 * Generates the light ray
+	 */
+	virtual Ray* generateRay(Point* pixel_loc) = 0;
 };
 
 /**
@@ -42,6 +48,10 @@ public:
 	*/
 	Vector3f* getDirection(Point* pixel_loc) {
 		return direction;
+	};
+
+	Ray* generateRay(Point* pixel_loc){
+		return new Ray(new Point(0.0, 0.0, 0.0), direction, -INFINITY, INFINITY);
 	};
 };
 
@@ -65,7 +75,12 @@ public:
 		*result += *location - *pixel_loc;
 		result->normalize();
 		return result;
+	}
+
+	Ray* generateRay(Point* pixel_loc){
+		return new Ray(location, getDirection(pixel_loc), 0, INFINITY);
 	};
+
 };
 
 #endif

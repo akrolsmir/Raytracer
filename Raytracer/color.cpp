@@ -1,7 +1,7 @@
 #include "color.h"
 
 Color::Color() : 
-	Vector3f(){/*nothing*/}
+	Vector3f(0.0,0.0,0.0){/*nothing*/}
 
 Color::Color(float a, float b, float c) :
 	Vector3f(a, b, c){/* nothing */}

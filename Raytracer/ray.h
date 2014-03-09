@@ -40,6 +40,16 @@ public:
 	 */
 	Vector3f* getDir();
 
+	/**
+	 * Returns t_min
+	 */
+	float getTMin();
+
+	/**
+	 * Returns t_max
+	 */
+	float getTMax();
+
 private:
 	Point pos;
 	Vector3f dir;

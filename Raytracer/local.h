@@ -16,6 +16,11 @@ class Local{
 public:
 
 	/**
+	 * Creates a local at the origin with a 0 normal vector
+	 */
+	Local();
+
+	/**
 	 * Initializes the local geometry at point
 	 * p with normal vector norm
 	 */
