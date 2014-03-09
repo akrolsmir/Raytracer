@@ -5,7 +5,9 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "Vec3.h"
+#include "Eigen\Dense"
+#include "Color.h"
+#include "Point.h"
 
 class Light;
 
@@ -14,11 +16,11 @@ class Light;
 */
 class Light{
 public:
-	Vec3* color;
+	Color* color;
 	/*
 	* Retrieves the direction vector from the pixel location to the light.
 	*/
-	virtual Vec3* getDirection(Vec3* pixel_loc) = 0;
+	virtual Vector3f* getDirection(Point* pixel_loc) = 0;
 };
 
 /**
@@ -26,20 +28,20 @@ public:
 */
 class DirectionLight : public Light {
 public:
-	Vec3* direction;
+	Vector3f* direction;
 
 	DirectionLight(float x, float y, float z, float r, float g, float b) {
-		direction = new Vec3(x, y, z);
-		color = new Vec3(r, g, b);
+		direction = new Vector3f(x, y, z);
+		direction->normalize();
+		*direction *= -1;
+		color = new Color(r, g, b);
 	}
 
 	/*
 	* Simply return the opposite direction, normalized
 	*/
-	Vec3* getDirection(Vec3* pixel_loc) {
-		Vec3* result = cp_normal(direction);
-		result->scalar_mult(-1);
-		return result;
+	Vector3f* getDirection(Point* pixel_loc) {
+		return direction;
 	};
 };
 
@@ -48,18 +50,19 @@ public:
 */
 class PointLight : public Light{
 public:
-	Vec3* location;
+	Point* location;
 
 	PointLight(float x, float y, float z, float r, float g, float b) {
-		location = new Vec3(x, y, z);
-		color = new Vec3(r, g, b);
+		location = new Point(x, y, z);
+		color = new Color(r, g, b);
 	}
 
 	/*
 	* Returns pixel_loc - location, normalized
 	*/
-	Vec3* getDirection(Vec3* pixel_loc) {
-		Vec3* result = sub(location, pixel_loc);
+	Vector3f* getDirection(Point* pixel_loc) {
+		Vector3f* result = new Vector3f(0, 0, 0);
+		*result += *pixel_loc - *location;
 		result->normalize();
 		return result;
 	};
