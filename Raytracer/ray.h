@@ -22,7 +22,7 @@ public:
 	 * Constructs a ray based on its starting point, a direction, 
 	 * and a range tMin <= t <= tMax
 	 */
-	Ray(Point* p, Vector3f* direction, float tMin, float tMax);
+	Ray(Point p, Vector3f direction, float tMin, float tMax);
 
 	/**
 	 * Calcluates ray(t)
@@ -30,27 +30,16 @@ public:
 	 */
 	Point* calculatePosition(float t);
 
-	/**
-	 * Returns a copy of the position
-	 */
-	Point* getPos();
+	///**
+	// * Returns a copy of the position
+	// */
+	//Point* getPos();
 
-	/**
-	 * Returns a copy of the direction
-	 */
-	Vector3f* getDir();
+	///**
+	// * Returns a copy of the direction
+	// */
+	//Vector3f* getDir();
 
-	/**
-	 * Returns t_min
-	 */
-	float getTMin();
-
-	/**
-	 * Returns t_max
-	 */
-	float getTMax();
-
-private:
 	Point pos;
 	Vector3f dir;
 	float t_min, t_max;

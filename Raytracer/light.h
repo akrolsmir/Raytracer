@@ -68,7 +68,7 @@ public:
 	}
 
 	/*
-	* Returns pixel_loc - location, normalized
+	* Returns location - pixel_loc, normalized
 	*/
 	Vector3f* getDirection(Point* pixel_loc) {
 		Vector3f* result = new Vector3f(0, 0, 0);

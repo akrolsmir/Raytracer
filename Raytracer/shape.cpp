@@ -19,15 +19,15 @@ Sphere::Sphere(Point* c, float r) :
 	center(*c), radius(r){/*nothing*/}
 
 bool Sphere::intersect(Ray* ray){
-	Vector3f d = *ray->getDir();
-	Point e = *ray->getPos() - center;
+	Vector3f d = ray->dir;
+	Point e = ray->pos - center;
 	float disc = d.dot(e) * d.dot(e) - d.dot(d) * (e.dot(e) - radius * radius);
 	return disc >= 0;
 }
 
 bool Sphere::intersect(Ray* ray, float* t_hit, Local* local){
-	Vector3f d = *ray->getDir();
-	Point e = *ray->getPos() - center;
+	Vector3f d = ray->dir;
+	Point e = ray->pos - center;
 	float disc = d.dot(e) * d.dot(e) - d.dot(d) * (e.dot(e) - radius * radius);
 	if (disc < 0) return false;
 	if (d.dot(d) <= 0) return false;

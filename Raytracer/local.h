@@ -24,18 +24,18 @@ public:
 	 * Initializes the local geometry at point
 	 * p with normal vector norm
 	 */
-	Local(Point* p, Vector3f* norm);
+	Local(Point p, Vector3f norm);
 
-	/**
-	 * Returns a copy of the location
-	 */
-	Point* getPoint();
+	///**
+	// * Returns a copy of the location
+	// */
+	//Point getPoint();
 
-	/**
-	 * Returns a copy of the normal at p, assuming that
-	 * this is a valid local geometry
-	 */
-	Vector3f* getNormal();
+	///**
+	// * Returns a copy of the normal at p, assuming that
+	// * this is a valid local geometry
+	// */
+	//Vector3f getNormal();
 
 	Point pos;
 	Vector3f normal; //normalized vector.
