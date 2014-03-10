@@ -44,7 +44,7 @@ void shade(Local* local, BRDF* brdf, Light* light, Color* result) {
 float* t_hit = new float;
 Local* local = new Local();
 
-Color* traceRay(Ray* ray, int depth) {
+Color* traceRay(Ray ray, int depth) {
 	// Return black if depth exceeds threshold
 	if (depth > 4) {
 		return new Color(0, 0, 0);
@@ -61,45 +61,15 @@ Color* traceRay(Ray* ray, int depth) {
 	BRDF amb = BRDF(brdf.ka, Color(0,0,0), Color(0,0,0), 0);
 
 	for (Light* light : lights) {
-		//shade(&(in->local), &brdf, light, result);
 		Ray* lightRay = light->generateRay(&(in->local.pos));
-		if (!primitives.intersect(lightRay)){
+		if (!primitives.intersect(*lightRay)){
 			shade(&(in->local), &brdf, light, result);
 		}
 		else{
 			shade(&(in->local), &amb, light, result);
 		}
 		delete lightRay;
-		//*result += *shade(local, &brdf, light);
 	}
-
-	/*
-	if (!sphere.intersect(ray, t_hit, local)) { //TODO replace with AggregatePrimitive or acceleration structure
-		return new Color(0, 0, 0);
-	}
-	// TODO remove temporary test BRDF
-	BRDF brdf;
-	brdf.ka = Color(0.1, 0.1, 0.0);
-	brdf.kd = Color(1.0, 1.0, 0.0);
-	brdf.ks = Color(0.8, 0.8, 0.8);
-	brdf.sp = 16;
-
-	Color* result = new Color(0, 0, 0);
-	for (Light* light : lights) {
-		shade(local, &brdf, light, result);
-	}
-	*/
-
-	/*
-	if (!triangle.intersect(ray, t_hit, local)) { //TODO replace with AggregatePrimitive or acceleration structure
-		return new Color(0, 0, 0);
-	}
-
-	Color* result = new Color(0, 0, 0);
-	for (Light* light : lights) {
-		//*result += *shade(local, &brdf, light);
-	}
-	*/
 	//TODO handle mirror and shading
 	return result;
 }
@@ -109,7 +79,7 @@ int main() {
 	cout << "Starting clock..." << endl;
 
 	// Hardcoded test values
-	width = 1000, height = 1000;
+	width = 2000, height = 2000;
 
 	camera = Point(0, 0, 10);
 	UL = Point(-1, 1, 1);
@@ -123,13 +93,13 @@ int main() {
 	Film film = Film(width, height);
 
 	vector<Primitive*> objs;
-	objs.push_back(new GeometricPrimitive(new Sphere(new Point(0.0, 0.0, -5.0), 0.4),
+	objs.push_back(new GeometricPrimitive(new Sphere(Point(0.0, 0.0, -5.0), 0.4),
 	BRDF(Color(0.1, 0.1, 0.0), Color(1.0, 1.0, 0.0), Color(0.8, 0.8, 0.8), 16)));
-	objs.push_back(new GeometricPrimitive(new Sphere(new Point(0.5, 0.5, -5.0), 0.4),
+	objs.push_back(new GeometricPrimitive(new Sphere(Point(0.5, 0.5, -5.0), 0.4),
 	BRDF(Color(0.1, 0.1, 0.0), Color(1.0, 1.0, 0.0), Color(0.8, 0.8, 0.8), 16)));
-	objs.push_back(new GeometricPrimitive(new Sphere(new Point(-0.5, -0.5, -10.0), 1.0),
+	objs.push_back(new GeometricPrimitive(new Sphere(Point(-0.5, -0.5, -10.0), 1.0),
 	BRDF(Color(0.1, 0.1, 0.0), Color(1.0, 1.0, 0.0), Color(0.8, 0.8, 0.8), 16)));
-	objs.push_back(new GeometricPrimitive(new Triangle(new Point(-1.0, 0.0, -10.0), new Point(0.0, 1.8, -11.0), new Point(1.5, 0.0, -12.0)), 
+	objs.push_back(new GeometricPrimitive(new Triangle(Point(-1.0, 0.0, -10.0), Point(0.0, 1.8, -11.0), Point(1.5, 0.0, -12.0)), 
 			BRDF(Color(0.1, 0.1, 0.1), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 0.0), 0)));
 
 	primitives = AggregatePrimitive(objs);
@@ -145,11 +115,11 @@ int main() {
 
 	while (nextY <= height) {
 		ray = generateRay(nextX, nextY);
-		color = traceRay(ray, 0);
+		color = traceRay(*ray, 0);
 		film.storeSample(nextX, nextY, *color);
 
 		// Calculate next sample location
-		float step = .5;
+		float step = 1;
 		nextX += step;
 		if (nextX >= width) {
 			nextY += step;

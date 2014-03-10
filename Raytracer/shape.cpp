@@ -4,49 +4,49 @@
 
 #define UNIMPLEMENTED(str) std::cout << "Unimplemented method " << str << std::endl; exit(0);
 
-bool Shape::intersect(Ray* ray){
+bool Shape::intersect(Ray ray){
 	UNIMPLEMENTED("Intersect");
 }
 
-bool Shape::intersect(Ray* ray, float* t_hit, Local* local){
+bool Shape::intersect(Ray ray, float* t_hit, Local* local){
 	UNIMPLEMENTED("Intersect");
 }
 
 Sphere::Sphere() :
 	center(Point(0.0, 0.0, 0.0)), radius(1.0){/*nothing*/}
 
-Sphere::Sphere(Point* c, float r) :
-	center(*c), radius(r){/*nothing*/}
+Sphere::Sphere(Point c, float r) :
+	center(c), radius(r){/*nothing*/}
 
-bool Sphere::intersect(Ray* ray){
-	Vector3f d = ray->dir;
-	Point e = ray->pos - center;
+bool Sphere::intersect(Ray ray){
+	Vector3f d = ray.dir;
+	Point e = ray.pos - center;
 	float disc = d.dot(e) * d.dot(e) - d.dot(d) * (e.dot(e) - radius * radius);
 	if (disc < 0){
 		return false;
 	}
 	float t = (-e.dot(d) + sqrt(disc)) / d.dot(d);
-	if (ray->calculatePosition(t) == NULL){
+	if (!ray.inBounds(t)){
 		t = (-e.dot(d) - sqrt(disc)) / d.dot(d);
-		if (ray->calculatePosition(t) == NULL) return false;
+		if (!ray.inBounds(t)) return false;
 	}
 	return disc >= 0;
 }
 
-bool Sphere::intersect(Ray* ray, float* t_hit, Local* local){
-	Vector3f d = ray->dir;
-	Point e = ray->pos - center;
+bool Sphere::intersect(Ray ray, float* t_hit, Local* local){
+	Vector3f d = ray.dir;
+	Point e = ray.pos - center;
 	float disc = d.dot(e) * d.dot(e) - d.dot(d) * (e.dot(e) - radius * radius);
 	if (disc < 0) return false;
 	if (d.dot(d) <= 0) return false;
 	
 	*t_hit = (-e.dot(d) - sqrt(disc)) / d.dot(d);
-	if (ray->calculatePosition(*t_hit) == NULL) {
+	if (!ray.inBounds(*t_hit)) {
 		*t_hit = (-e.dot(d) + sqrt(disc)) / d.dot(d);
-		if (ray->calculatePosition(*t_hit) == NULL) return false;
+		if (!ray.inBounds(*t_hit)) return false;
 	}
 
-	local->pos = *ray->calculatePosition(*t_hit);
+	local->pos = *ray.calculatePosition(*t_hit);
 	local->normal = (local->pos - center).normalized();
 
 	return true;
@@ -55,13 +55,13 @@ bool Sphere::intersect(Ray* ray, float* t_hit, Local* local){
 Triangle::Triangle() :
 	a(Point(0.0,0.0,0.0)), b(Point(1.0,0.0,0.0)), c(Point(0.0,1.0,0.0)){/*nothing*/}
 
-Triangle::Triangle(Point* a, Point* b, Point* c) :
-	a(*a), b(*b), c(*c){/*nothing*/}
+Triangle::Triangle(Point a, Point b, Point c) :
+	a(a), b(b), c(c){/*nothing*/}
 
-bool Triangle::intersect(Ray* ray){
+bool Triangle::intersect(Ray ray){
 	Matrix3f M;
-	Vector3f rayStart = ray->pos;
-	Vector3f rayDirection = ray->dir;
+	Vector3f rayStart = ray.pos;
+	Vector3f rayDirection = ray.dir;
 	M << (a - b), (a - c), rayDirection;
 	float MDet = M.determinant();
 	if (MDet == 0) {
@@ -70,7 +70,7 @@ bool Triangle::intersect(Ray* ray){
 	Matrix3f tMatrix;
 	tMatrix << (a - b), (a - c), (a - rayStart);
 	float t = tMatrix.determinant() / MDet;
-	if (ray->calculatePosition(t) == NULL){
+	if (!ray.inBounds(t)){
 		return false;
 	}
 	Matrix3f gammaMatrix;
@@ -90,10 +90,10 @@ bool Triangle::intersect(Ray* ray){
 	return true;
 }
 
-bool Triangle::intersect(Ray* ray, float* t_hit, Local* local){
+bool Triangle::intersect(Ray ray, float* t_hit, Local* local){
 	Matrix3f M;
-	Vector3f rayStart = ray->pos;
-	Vector3f rayDirection = ray->dir;
+	Vector3f rayStart = ray.pos;
+	Vector3f rayDirection = ray.dir;
 	M << (a - b), (a - c), rayDirection;
 	float MDet = M.determinant();
 	if (MDet == 0) {
@@ -102,7 +102,7 @@ bool Triangle::intersect(Ray* ray, float* t_hit, Local* local){
 	Matrix3f tMatrix;
 	tMatrix << (a - b), (a - c), (a - rayStart);
 	float t = tMatrix.determinant() / MDet;
-	if (ray->calculatePosition(t) == NULL){
+	if (!ray.inBounds(t)){
 		return false;
 	}
 	Matrix3f gammaMatrix;
@@ -121,7 +121,7 @@ bool Triangle::intersect(Ray* ray, float* t_hit, Local* local){
 
 	*t_hit = t;
 
-	local->pos = *ray->calculatePosition(t);
+	local->pos = *ray.calculatePosition(t);
 	local->normal = (b - a).cross(c - a).normalized();
 	//std::cout << local->pos << std::endl << std::endl;
 	return true;
@@ -129,3 +129,4 @@ bool Triangle::intersect(Ray* ray, float* t_hit, Local* local){
 
 }
 
+// TODO fix memory leaks everywhere

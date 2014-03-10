@@ -17,12 +17,12 @@ public:
 	 * intersection point, and the normal at that point, and return true.
 	 * Else, return false.
 	 */
-	virtual bool intersect(Ray* ray, float* t_hit, Local* local);
+	virtual bool intersect(Ray ray, float* t_hit, Local* local);
 
 	/**
 	 * Returns if the ray intersects with me.
 	 */
-	virtual bool intersect(Ray* ray);
+	virtual bool intersect(Ray ray);
 };
 
 /**
@@ -38,11 +38,11 @@ public:
 	/**
 	 * Constructs the sphere centered at c with radius r
 	 */
-	Sphere(Point* c, float r);
+	Sphere(Point c, float r);
 	
-	bool intersect(Ray* ray, float* t_hit, Local* local);
+	bool intersect(Ray ray, float* t_hit, Local* local);
 
-	bool intersect(Ray* ray);
+	bool intersect(Ray ray);
 
 private:
 	Point center;
@@ -64,11 +64,11 @@ public:
 	/**
 	 * Constructs the triangle with vertices a, b, c
 	 */
-	Triangle(Point* a, Point* b, Point* c);
+	Triangle(Point a, Point b, Point c);
 
-	bool intersect(Ray* ray, float* t_hit, Local* local);
+	bool intersect(Ray ray, float* t_hit, Local* local);
 
-	bool intersect(Ray* ray);
+	bool intersect(Ray ray);
 
 private:
 	Point a;

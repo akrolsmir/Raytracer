@@ -2,11 +2,11 @@
 #include <iostream>
 #define UNIMPLEMENTED(str) std::cout << "Unimplemented method " << str << std::endl; exit(0);
 
-bool Primitive::intersect(Ray* ray, float* t_hit, Intersection* in){
+bool Primitive::intersect(Ray ray, float* t_hit, Intersection* in){
 	UNIMPLEMENTED("Intersect");
 }
 
-bool Primitive::intersect(Ray* ray){
+bool Primitive::intersect(Ray ray){
 	UNIMPLEMENTED("Intersect");
 }
 
@@ -17,7 +17,7 @@ BRDF Primitive::getBRDF(){
 GeometricPrimitive::GeometricPrimitive(Shape* shape, BRDF brdf) :
 	shape(shape), brdf(brdf){/*nothing*/}
 
-bool GeometricPrimitive::intersect(Ray* ray, float* t_hit, Intersection* in){
+bool GeometricPrimitive::intersect(Ray ray, float* t_hit, Intersection* in){
 	//TODO transformations
 	/*
 	Point oPos = Point(worldToObj * *ray->getPos());
@@ -42,7 +42,7 @@ bool GeometricPrimitive::intersect(Ray* ray, float* t_hit, Intersection* in){
 
 
 }
-bool GeometricPrimitive::intersect(Ray* ray){
+bool GeometricPrimitive::intersect(Ray ray){
 	//TODO transformations
 	/*
 	Point oPos = Point(worldToObj * *ray->getPos());
@@ -63,7 +63,7 @@ AggregatePrimitive::AggregatePrimitive() :
 AggregatePrimitive::AggregatePrimitive(std::vector<Primitive*> lst) :
 	primitives(lst){/*nothing*/}
 
-bool AggregatePrimitive::intersect(Ray* ray, float* t_hit, Intersection* in){
+bool AggregatePrimitive::intersect(Ray ray, float* t_hit, Intersection* in){
 	Intersection nextIn = Intersection();
 	float nextT = INFINITY;
 	float currT = INFINITY;
@@ -80,7 +80,7 @@ bool AggregatePrimitive::intersect(Ray* ray, float* t_hit, Intersection* in){
 	}
 	return hit;
 }
-bool AggregatePrimitive::intersect(Ray* ray){
+bool AggregatePrimitive::intersect(Ray ray){
 	for (size_t i = 0; i < primitives.size(); i++){
 		if (primitives[i]->intersect(ray)){
 			return true;

@@ -20,11 +20,11 @@ public:
 	 * sets t_hit to the t such that ray(t) is on the surface of the primitive,
 	 * and the intersection containing the primitive and the local geometry
 	 */
-	virtual bool intersect(Ray* ray, float* t_hit, Intersection* in);
+	virtual bool intersect(Ray ray, float* t_hit, Intersection* in);
 	/**
 	 * Returns if the ray intersects with me.
 	 */
-	virtual bool intersect(Ray* ray);
+	virtual bool intersect(Ray ray);
 	/**
 	 * Returns my brdf
 	 */
@@ -68,8 +68,8 @@ public:
 	 */
 	GeometricPrimitive(Shape* shape, BRDF brdf);
 
-	bool intersect(Ray* ray, float* t_hit, Intersection* in);
-	bool intersect(Ray* ray);
+	bool intersect(Ray ray, float* t_hit, Intersection* in);
+	bool intersect(Ray ray);
 	BRDF getBRDF();
 };
 
@@ -84,8 +84,8 @@ public:
 	AggregatePrimitive();
 	AggregatePrimitive(std::vector<Primitive*> lst);
 
-	bool intersect(Ray* ray, float* t_hit, Intersection* in);
-	bool intersect(Ray* ray);
+	bool intersect(Ray ray, float* t_hit, Intersection* in);
+	bool intersect(Ray ray);
 	BRDF getBRDF();
 
 private:
