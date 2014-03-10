@@ -15,16 +15,16 @@ class Light;
 */
 class Light{
 public:
-	Color* color;
+	Color color;
 	/*
 	* Retrieves the direction vector from the pixel location to the light.
 	*/
-	virtual Vector3f* getDirection(Point* pixel_loc) = 0;
+	virtual Vector3f* getDirection(Point pixel_loc) = 0;
 
 	/**
 	 * Generates the light ray
 	 */
-	virtual Ray* generateRay(Point* pixel_loc) = 0;
+	virtual Ray* generateRay(Point pixel_loc) = 0;
 };
 
 /**
@@ -32,24 +32,24 @@ public:
 */
 class DirectionLight : public Light {
 public:
-	Vector3f* direction;
+	Vector3f direction;
 
 	DirectionLight(float x, float y, float z, float r, float g, float b) {
-		direction = new Vector3f(x, y, z);
-		direction->normalize();
-		*direction *= -1;
-		color = new Color(r, g, b);
+		direction = Vector3f(x, y, z);
+		direction.normalize();
+		direction *= -1;
+		color = Color(r, g, b);
 	}
 
 	/*
 	* Simply return the opposite direction, normalized
 	*/
-	Vector3f* getDirection(Point* pixel_loc) {
-		return direction;
+	Vector3f* getDirection(Point pixel_loc) {
+		return &direction;
 	};
 
-	Ray* generateRay(Point* pixel_loc){
-		return new Ray(Point(0.0, 0.0, 0.0), *direction, -INFINITY, INFINITY);
+	Ray* generateRay(Point pixel_loc){
+		return new Ray(Point(0.0, 0.0, 0.0), direction, -INFINITY, INFINITY);
 	};
 };
 
@@ -58,26 +58,26 @@ public:
 */
 class PointLight : public Light{
 public:
-	Point* location;
+	Point location;
 
 	PointLight(float x, float y, float z, float r, float g, float b) {
-		location = new Point(x, y, z);
-		color = new Color(r, g, b);
+		location = Point(x, y, z);
+		color = Color(r, g, b);
 	}
 
 	/*
 	* Returns location - pixel_loc, normalized
 	*/
-	Vector3f* getDirection(Point* pixel_loc) {
+	Vector3f* getDirection(Point pixel_loc) {
 		Vector3f* result = new Vector3f(0, 0, 0);
-		*result += *location - *pixel_loc;
+		*result += location - pixel_loc;
 		result->normalize();
 		return result;
 	}
 
-	Ray* generateRay(Point* pixel_loc){
-		Point dir = *location - *pixel_loc;
-		return new Ray(*pixel_loc, dir, 0, 1);
+	Ray* generateRay(Point pixel_loc){
+		Point dir = location - pixel_loc;
+		return new Ray(pixel_loc, dir, 0, 1);
 	};
 
 };

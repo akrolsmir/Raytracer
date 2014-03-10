@@ -26,19 +26,19 @@ Ray* generateRay(float x, float y) {
 	return new Ray(camera, p - camera, 1, INFINITY);
 }
 
-void shade(Local* local, BRDF* brdf, Light* light, Color* result) {
+void shade(Local local, BRDF brdf, Light& light, Color* result) {
 	// Ambient term
-	*result += brdf->ka;
+	*result += brdf.ka;
 
 	// Diffuse term
-	Vector3f direction = *light->getDirection(&local->pos);
-	float dot = direction.dot(local->normal);
-	*result += max(0, dot) * pairwise(brdf->kd, (*light->color));
+	Vector3f direction = *light.getDirection(local.pos); // TODO fix leak
+	float dot = direction.dot(local.normal);
+	*result += max(0, dot) * pairwise(brdf.kd, light.color);
 
 	// Specular term
-	Vector3f reflected = (2 * direction.dot(local->normal) * local->normal) - direction;
-	dot = reflected.dot((camera - local->pos).normalized());
-	*result += pow(max(0, dot), brdf->sp) * pairwise(brdf->ks, (*light->color));
+	Vector3f reflected = (2 * direction.dot(local.normal) * local.normal) - direction;
+	dot = reflected.dot((camera - local.pos).normalized());
+	*result += pow(max(0, dot), brdf.sp) * pairwise(brdf.ks, light.color);
 }
 
 float* t_hit = new float;
@@ -61,12 +61,12 @@ Color* traceRay(Ray ray, int depth) {
 	BRDF amb = BRDF(brdf.ka, Color(0,0,0), Color(0,0,0), 0);
 
 	for (Light* light : lights) {
-		Ray* lightRay = light->generateRay(&(in->local.pos));
+		Ray* lightRay = light->generateRay(in->local.pos);
 		if (!primitives.intersect(*lightRay)){
-			shade(&(in->local), &brdf, light, result);
+			shade(in->local, brdf, *light, result);
 		}
 		else{
-			shade(&(in->local), &amb, light, result);
+			shade(in->local, amb, *light, result);
 		}
 		delete lightRay;
 	}
@@ -128,7 +128,7 @@ int main() {
 		delete ray;
 		delete color;
 	}
-	film.writeImage("output3.png");
+	film.writeImage("output.png");
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	cout << "Enter to exit." << endl;
 	cin.ignore();
