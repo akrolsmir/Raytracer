@@ -30,8 +30,9 @@ void shade(Local local, BRDF brdf, Light& light, Color* result) {
 	// Ambient term
 	*result += brdf.ka;
 
+	Vector3f direction = light.getDirection(local.pos);
+
 	// Diffuse term
-	Vector3f direction = *light.getDirection(local.pos); // TODO fix leak
 	float dot = direction.dot(local.normal);
 	*result += max(0, dot) * pairwise(brdf.kd, light.color);
 
@@ -51,26 +52,29 @@ Color* traceRay(Ray ray, int depth) {
 	}
 
 	Intersection* in = new Intersection();
-	Color* result = new Color(0, 0, 0);
+
 	// Return black if no intersection
 	if (!primitives.intersect(ray, t_hit, in)){
+		delete in;
 		return new Color(0, 0, 0);
 	}
+
+	Color* result = new Color(0, 0, 0);
 
 	BRDF brdf = in->primitive->getBRDF();
 	BRDF amb = BRDF(brdf.ka, Color(0,0,0), Color(0,0,0), 0);
 
 	for (Light* light : lights) {
-		Ray* lightRay = light->generateRay(in->local.pos);
-		if (!primitives.intersect(*lightRay)){
+		Ray lightRay = light->generateRay(in->local.pos);
+		if (!primitives.intersect(lightRay)){
 			shade(in->local, brdf, *light, result);
 		}
 		else{
 			shade(in->local, amb, *light, result);
 		}
-		delete lightRay;
 	}
 	//TODO handle mirror and shading
+	delete in;
 	return result;
 }
 

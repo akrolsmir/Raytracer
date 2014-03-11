@@ -26,13 +26,12 @@ public:
 		pos(p), dir(direction), t_min(tMin), t_max(tMax){/*nothing*/
 	};
 
-	//TODO this leaks memory often
-	Point* calculatePosition(float t){
+	Point calculatePosition(float t){
 		if (!inBounds(t)){
-			return NULL;
+			return Point();
 		}
 		Vector3f result = pos + t*dir;
-		return new Point(result);
+		return Point(result);
 	}
 
 	bool inBounds(float t) {

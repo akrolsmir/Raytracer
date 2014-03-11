@@ -19,12 +19,12 @@ public:
 	/*
 	* Retrieves the direction vector from the pixel location to the light.
 	*/
-	virtual Vector3f* getDirection(Point pixel_loc) = 0;
+	virtual Vector3f getDirection(Point pixel_loc) = 0;
 
 	/**
 	 * Generates the light ray
 	 */
-	virtual Ray* generateRay(Point pixel_loc) = 0;
+	virtual Ray generateRay(Point pixel_loc) = 0;
 };
 
 /**
@@ -35,21 +35,19 @@ public:
 	Vector3f direction;
 
 	DirectionLight(float x, float y, float z, float r, float g, float b) {
-		direction = Vector3f(x, y, z);
-		direction.normalize();
-		direction *= -1;
+		direction = -1 * Vector3f(x, y, z).normalized();
 		color = Color(r, g, b);
 	}
 
 	/*
 	* Simply return the opposite direction, normalized
 	*/
-	Vector3f* getDirection(Point pixel_loc) {
-		return &direction;
+	Vector3f getDirection(Point pixel_loc) {
+		return direction;
 	};
 
-	Ray* generateRay(Point pixel_loc){
-		return new Ray(Point(0.0, 0.0, 0.0), direction, -INFINITY, INFINITY);
+	Ray generateRay(Point pixel_loc){
+		return Ray(Point(0.0, 0.0, 0.0), direction, -INFINITY, INFINITY);
 	};
 };
 
@@ -68,16 +66,13 @@ public:
 	/*
 	* Returns location - pixel_loc, normalized
 	*/
-	Vector3f* getDirection(Point pixel_loc) {
-		Vector3f* result = new Vector3f(0, 0, 0);
-		*result += location - pixel_loc;
-		result->normalize();
-		return result;
+	Vector3f getDirection(Point pixel_loc) {
+		return (location - pixel_loc).normalized();
 	}
 
-	Ray* generateRay(Point pixel_loc){
+	Ray generateRay(Point pixel_loc){
 		Point dir = location - pixel_loc;
-		return new Ray(pixel_loc, dir, 0, 1);
+		return  Ray(pixel_loc, dir, 0, 1);
 	};
 
 };
