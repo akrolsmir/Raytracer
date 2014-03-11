@@ -12,7 +12,7 @@ typedef Vector3f Point;
 
 class Local{
 public:
-	Local() : pos(Point()), normal(Vector3f()){};
+	Local(){};
 	Local(Point p, Vector3f norm) :
 		pos(p), normal(norm.normalized()) {/*nothing*/
 	};
@@ -22,6 +22,7 @@ public:
 
 class Ray{
 public:
+	Ray(){};
 	Ray(Point p, Vector3f direction, float tMin, float tMax) :
 		pos(p), dir(direction), t_min(tMin), t_max(tMax){/*nothing*/
 	};

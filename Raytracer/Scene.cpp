@@ -20,46 +20,44 @@ vector<Light*> lights;
 AggregatePrimitive primitives;
 
 // Generates a ray from camera, through the screen coordinates x, y
-Ray* generateRay(float x, float y) {
+Ray generateRay(float x, float y) {
 	float u = x / width, v = y / height;
 	Point p = (1 - u) * ((1 - v) * LL + v * UL) + u * ((1 - v) * LR + v * UR);
-	return new Ray(camera, p - camera, 1, INFINITY);
+	return Ray(camera, p - camera, 1, INFINITY);
 }
 
-void shade(Local local, BRDF brdf, Light& light, Color* result) {
+Color shade(Local local, BRDF brdf, Light& light) {
 	// Ambient term
-	*result += brdf.ka;
-
-	Vector3f direction = light.getDirection(local.pos);
+	Color result = brdf.ka;
 
 	// Diffuse term
+	Vector3f direction = light.getDirection(local.pos);
 	float dot = direction.dot(local.normal);
-	*result += max(0, dot) * pairwise(brdf.kd, light.color);
+	result += max(0, dot) * pairwise(brdf.kd, light.color);
 
 	// Specular term
 	Vector3f reflected = (2 * direction.dot(local.normal) * local.normal) - direction;
 	dot = reflected.dot((camera - local.pos).normalized());
-	*result += pow(max(0, dot), brdf.sp) * pairwise(brdf.ks, light.color);
+	result += pow(max(0, dot), brdf.sp) * pairwise(brdf.ks, light.color);
+
+	return result;
 }
 
 float* t_hit = new float;
-Local* local = new Local();
+Intersection* in = new Intersection();
 
-Color* traceRay(Ray ray, int depth) {
+Color traceRay(Ray ray, int depth) {
 	// Return black if depth exceeds threshold
 	if (depth > 4) {
-		return new Color(0, 0, 0);
+		return Color(0, 0, 0);
 	}
-
-	Intersection* in = new Intersection();
 
 	// Return black if no intersection
 	if (!primitives.intersect(ray, t_hit, in)){
-		delete in;
-		return new Color(0, 0, 0);
+		return Color(0, 0, 0);
 	}
 
-	Color* result = new Color(0, 0, 0);
+	Color result = Color(0, 0, 0);
 
 	BRDF brdf = in->primitive->getBRDF();
 	BRDF amb = BRDF(brdf.ka, Color(0,0,0), Color(0,0,0), 0);
@@ -67,14 +65,13 @@ Color* traceRay(Ray ray, int depth) {
 	for (Light* light : lights) {
 		Ray lightRay = light->generateRay(in->local.pos);
 		if (!primitives.intersect(lightRay)){
-			shade(in->local, brdf, *light, result);
+			result += shade(in->local, brdf, *light);
 		}
 		else{
-			shade(in->local, amb, *light, result);
+			result += shade(in->local, amb, *light);
 		}
 	}
-	//TODO handle mirror and shading
-	delete in;
+	//TODO handle mirror
 	return result;
 }
 
@@ -112,15 +109,13 @@ int main() {
 	lights.push_back(new PointLight(200, 200, 200, 0.6, 0.6, 0.6));
 	lights.push_back(new DirectionLight(0, 1, -1, 0, 0.4, 0.4));
 
-	Ray* ray;
-	Color* color;
 
 	cout << "Starting render..." << endl;
 
 	while (nextY <= height) {
-		ray = generateRay(nextX, nextY);
-		color = traceRay(*ray, 0);
-		film.storeSample(nextX, nextY, *color);
+		Ray ray = generateRay(nextX, nextY);
+		Color color = traceRay(ray, 0);
+		film.storeSample(nextX, nextY, color);
 
 		// Calculate next sample location
 		float step = 1;
@@ -129,8 +124,6 @@ int main() {
 			nextY += step;
 			nextX = 0.5;
 		}
-		delete ray;
-		delete color;
 	}
 	film.writeImage("output.png");
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
