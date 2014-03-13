@@ -10,6 +10,14 @@ typedef Vector3f Vector;
 typedef Vector3f Color;
 typedef Vector3f Point;
 
+class Camera{
+public:
+	Point lookFrom;
+	Point lookAt;
+	Vector3f up;
+	float fov;
+};
+
 class Local{
 public:
 	Local(){};

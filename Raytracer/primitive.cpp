@@ -14,6 +14,10 @@ BRDF Primitive::getBRDF(){
 	UNIMPLEMENTED("getBRDF");
 }
 
+BRDF* Primitive::getBRDFPointer(){
+	UNIMPLEMENTED("getBRDFPointer");
+}
+
 GeometricPrimitive::GeometricPrimitive(Shape* shape, BRDF brdf) :
 	shape(shape), brdf(brdf){/*nothing*/}
 
@@ -57,6 +61,10 @@ BRDF GeometricPrimitive::getBRDF(){
 	return brdf;
 }
 
+BRDF* GeometricPrimitive::getBRDFPointer(){
+	return &brdf;
+}
+
 AggregatePrimitive::AggregatePrimitive() :
 	primitives(std::vector<Primitive*>()){/*nothing*/}
 
@@ -91,6 +99,10 @@ bool AggregatePrimitive::intersect(Ray ray){
 
 BRDF AggregatePrimitive::getBRDF(){
 	UNIMPLEMENTED("getBRDF");
+}
+
+BRDF* AggregatePrimitive::getBRDFPointer(){
+	UNIMPLEMENTED("getBRDFPointer");
 }
 
 Intersection::Intersection() :

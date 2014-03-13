@@ -30,6 +30,8 @@ public:
 	 */
 	virtual BRDF getBRDF();
 
+	virtual BRDF* getBRDFPointer();
+
 };
 
 /**
@@ -63,6 +65,7 @@ private:
 	const Matrix4f objToWorld;
 	const Matrix4f worldToObj;
 public:
+
 	/**
 	 * Constructor
 	 */
@@ -71,6 +74,7 @@ public:
 	bool intersect(Ray ray, float* t_hit, Intersection* in);
 	bool intersect(Ray ray);
 	BRDF getBRDF();
+	BRDF* getBRDFPointer();
 };
 
 /**
@@ -87,6 +91,7 @@ public:
 	bool intersect(Ray ray, float* t_hit, Intersection* in);
 	bool intersect(Ray ray);
 	BRDF getBRDF();
+	BRDF* getBRDFPointer();
 
 private:
 	std::vector<Primitive*> primitives;
