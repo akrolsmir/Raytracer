@@ -44,7 +44,7 @@ public:
 	}
 
 	bool inBounds(float t) {
-		return t_min + .0001 < t && t < t_max;
+		return t_min <= t && t <= t_max;
 	}
 
 	Point pos;

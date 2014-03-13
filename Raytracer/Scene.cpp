@@ -84,7 +84,7 @@ Color traceRay(Ray ray, int depth) {
 }
 
 /**
- * Parses the file under Professor Ravi Ramamoorthi's specifications
+ * Parses the input file. Based on Professor Ravi Ramamoorthi's specifications
  * at http://inst.eecs.berkeley.edu/~cs184/fa12/assignments/hw5.pdf
  */
 bool parse_file(ifstream* file, string* error, int* err_loc){
@@ -208,8 +208,8 @@ int main() {
 
 	Film film = Film(width, height);
 
-	objs.push_back(new GeometricPrimitive(new Triangle(Point(-1.0, 0.0, -10.0), Point(0.0, 1.8, -11.0), Point(1.5, 0.0, -12.0)), 
-			BRDF(Color(0.1, 0.1, 0.1), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 0.0), 0)));
+	//objs.push_back(new GeometricPrimitive(new Triangle(Point(0.0, 0.0, 0.0), Point(0.0, 0.5, 0.0), Point(0.5, 0.0, 0.0)), 
+			//BRDF(Color(0.1, 0.1, 0.1), Color(0.3, 0.3, 0.0), Color(0.2, 0.2, 0.0), 0)));
 
 	primitives = AggregatePrimitive(objs);
 
