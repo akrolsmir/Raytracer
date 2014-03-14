@@ -51,6 +51,13 @@ Color shade(Local local, BRDF brdf, Light& light) {
 	return result;
 }
 
+Ray reflectRay(Local local, Ray ray) {
+	Vector3f direction = 2 * ray.dir.dot(local.normal) * local.normal - ray.dir;
+	//Vector3f r = 2 * ray.dir.normalized().dot(local.normal) * local.normal - ray.dir.normalized();
+	//r *= ray.dir.norm();
+	return Ray(local.pos, direction, 0.0001, INFINITY);
+}
+
 float* t_hit = new float;
 Intersection* in = new Intersection();
 
@@ -79,7 +86,11 @@ Color traceRay(Ray ray, int depth) {
 			result += shade(in->local, amb, *light);
 		}
 	}
-	//TODO handle mirror
+	if (brdf.kr.norm() > 0) {
+		Ray reflectRay = reflectRay(in->local, ray);
+		Color reflectColor = traceRay(reflectRay, depth + 1);
+		result += pairwise(brdf.kr, reflectColor);
+	}
 	return result;
 }
 
