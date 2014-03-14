@@ -93,12 +93,14 @@
     <ClInclude Include="Film.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="shape.h" />
+    <ClInclude Include="transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="primitive.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="Film.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="transform.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

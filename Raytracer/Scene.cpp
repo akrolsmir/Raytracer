@@ -16,15 +16,31 @@
 
 using namespace std;
 
+
 int width, height, max_depth;
 int max_verts, max_vert_norms = 0;
+float aa_step = 1;
 string output_name = "output.png";
 Camera camera = Camera();
 Point UL, UR, LR, LL;
 Color ka_scene;
 vector<Light*> lights;
 
+//this is the ugliest shit
+typedef struct {
+	Vector3f pt;
+	Vector3f normal;
+} VertexNormal_t;
+
+vector<vector<Transformation*>> transform_stack;
+vector<vector<Transformation*>> inv_transform_stack;
+vector<Transformation*> curr_transform;
+vector<Transformation*> curr_inv_transform;
+vector<Vector3f> verts;
+vector<Vector3f> norms;
+
 AggregatePrimitive primitives;
+vector<AggregatePrimitive*> curr_obj;
 vector<Primitive*> objs;
 
 // Generates a ray from camera, through the screen coordinates x, y
@@ -36,7 +52,7 @@ Ray generateRay(float x, float y) {
 
 Color shade(Local local, BRDF brdf, Light& light) {
 	// Ambient term
-	Color result = brdf.ka + ka_scene;
+	Color result = brdf.ka;
 
 	// Diffuse term
 	Vector3f direction = light.getDirection(local.pos);
@@ -67,10 +83,10 @@ Color traceRay(Ray ray, int depth) {
 
 	// Return black if no intersection
 	if (!primitives.intersect(ray, t_hit, in)){
-		return Color(0, 0, 0);
+		return ka_scene;
 	}
 
-	Color result = Color(0, 0, 0);
+	Color result = ka_scene;
 
 	BRDF brdf = in->primitive->getBRDF();
 	BRDF amb = BRDF(brdf.ka, Color(0,0,0), Color(0,0,0), 0);
@@ -119,6 +135,10 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 			else if (buf == "maxdepth"){
 				ss >> max_depth;
 			}
+			else if (buf == "aliasing"){
+				ss >> aa_step;
+				aa_step = 1 / aa_step;
+			}
 			else if (buf == "output"){
 				ss >> output_name;
 			}
@@ -132,16 +152,129 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				camera.up = Point(x, y, z);
 				ss >> camera.fov;
 			}
+			else if (buf == "g"){
+				if (ss >> buf){
+					AggregatePrimitive* new_obj = new AggregatePrimitive();
+					if (curr_obj.size() == 0){
+						objs.push_back(new_obj);
+					}
+					else {
+						curr_obj.back()->addPrimitive(new_obj);
+					}
+					curr_obj.push_back(new_obj);
+				}
+				else {
+					curr_obj.pop_back();
+				}
+				for (int i = 0; i < transform_stack.size(); i++){
+					curr_obj.back()->addTransform(transform_stack[i], inv_transform_stack[i]);
+				}
+			}
 			else if (buf == "sphere"){
 				float x, y, z, r;
 				ss >> x >> y >> z >> r;
-				objs.push_back(new GeometricPrimitive(new Sphere(Point(x, y, z), r), BRDF()));
+				if (curr_obj.size() == 0){
+					objs.push_back(new GeometricPrimitive(new Sphere(Point(x, y, z), r), BRDF()));
+					for (int i = 0; i < transform_stack.size(); i++){
+						objs.back()->addTransform(transform_stack[i], inv_transform_stack[i]);
+					}
+				}
+				else {
+					GeometricPrimitive* new_p = new GeometricPrimitive(new Sphere(Point(x, y, z), r), BRDF());
+					curr_obj.back()->addPrimitive(new_p);
+					for (int i = 0; i < transform_stack.size(); i++){
+						new_p->addTransform(transform_stack[i], inv_transform_stack[i]);
+					}
+				}
 			}
 			else if (buf == "maxverts"){
 				ss >> max_verts;
 			}
 			else if (buf == "maxvertnorms"){
 				ss >> max_vert_norms;
+			}
+			else if (buf == "v"){
+				float v1, v2, v3;
+				ss >> v1 >> v2 >> v3;
+				verts.push_back(Vector3f(v1, v2, v3));
+			}
+			else if (buf == "vt"){
+				/*ignore*/
+				continue;
+			}
+			else if (buf == "vn"){
+				float v1, v2, v3;
+				ss >> v1 >> v2 >> v3;
+				norms.push_back(Vector3f(v1, v2, v3));
+			}
+			else if (buf == "f"){
+				size_t vs[3];
+				size_t ns[3];
+				bool isNorm = false;
+				for (int i = 0; i < 3; i++){
+					int count = 0;
+					string v;
+					string rest;
+					ss >> rest;
+					stringstream ss_rest(rest);
+					while (getline(ss_rest, v, '/') && count++ < 3){
+						if (count == 1){
+							vs[i] = atoi(v.c_str());
+						}
+						if (count == 3){
+							isNorm = true;
+							ns[i] = atoi(v.c_str());
+						}
+					}
+				}
+				GeometricPrimitive* tri;
+				if (isNorm){
+					tri = new GeometricPrimitive(new NormalTriangle(verts[vs[0]-1], verts[vs[1]-1], verts[vs[2]-1], norms[ns[0]-1], norms[ns[1]-1], norms[ns[2]-1]), BRDF());
+				}
+				else {
+					tri = new GeometricPrimitive(new Triangle(verts[vs[0] - 1], verts[vs[1] - 1], verts[vs[2] - 1]), BRDF());
+				}
+				if (curr_obj.size() == 0){
+					objs.push_back(tri);
+					for (int i = 0; i < transform_stack.size(); i++){
+						objs.back()->addTransform(transform_stack[i], inv_transform_stack[i]);
+					}
+				}
+				else {
+					curr_obj.back()->addPrimitive(tri);
+					for (int i = 0; i < transform_stack.size(); i++){
+						tri->addTransform(transform_stack[i], inv_transform_stack[i]);
+					}
+				}
+			}
+			else if (buf == "translate"){
+				float x, y, z;
+				ss >> x >> y >> z;
+				curr_transform.push_back(new Translate(x, y, z));
+				curr_inv_transform.push_back(new Translate(-x, -y, -z));
+			}
+			else if (buf == "rotate"){
+				double x, y, z, r;
+				ss >> x >> y >> z >> r;
+				curr_transform.push_back(new Rotate(Vector3f(x,y,z),r));
+				curr_inv_transform.push_back(new Rotate(Vector3f(x,y,z),-r));
+			}
+			else if (buf == "scale"){
+				float x, y, z;
+				ss >> x >> y >> z;
+				curr_transform.push_back(new Scale(x, y, z));
+				curr_inv_transform.push_back(new Scale(1/x, 1/y, 1/z));
+			}
+			else if (buf == "pushTransform"){
+				transform_stack.push_back(curr_transform);
+				inv_transform_stack.push_back(curr_inv_transform);
+				curr_transform.clear();
+				curr_inv_transform.clear();
+
+			}
+			else if (buf == "popTransform"){
+				transform_stack.pop_back();
+				inv_transform_stack.pop_back();
 			}
 			else if (buf == "directional"){
 				float x, y, z, r, g, b;
@@ -161,22 +294,42 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 			else if (buf == "diffuse"){
 				float r, g, b;
 				ss >> r >> g >> b;
-				objs.back()->getBRDFPointer()->kd = Color(r, g, b);
+				if (curr_obj.size() == 0){
+					objs.back()->setkd(Color(r, g, b));
+				}
+				else {
+					curr_obj.back()->setkd(Color(r, g, b));
+				}
 			}
 			else if (buf == "specular"){
 				float r, g, b;
 				ss >> r >> g >> b;
-				objs.back()->getBRDFPointer()->ks = Color(r, g, b);
+				if (curr_obj.size() == 0){
+					objs.back()->setks(Color(r, g, b));
+				}
+				else {
+					curr_obj.back()->setks(Color(r, g, b));
+				}
 			}
 			else if (buf == "shininess"){
 				float s;
 				ss >> s;
-				objs.back()->getBRDFPointer()->sp = s;
+				if (curr_obj.size() == 0){
+					objs.back()->setsp(s);
+				}
+				else {
+					curr_obj.back()->setsp(s);
+				}
 			}
 			else if (buf == "emission"){
 				float r, g, b;
 				ss >> r >> g >> b;
-				objs.back()->getBRDFPointer()->ka = Color(r, g, b);
+				if (curr_obj.size() == 0){
+					objs.back()->setka(Color(r, g, b));
+				}
+				else {
+					curr_obj.back()->setka(Color(r, g, b));
+				}
 			}
 			else if (buf == "reflectance"){
 				float r, g, b;
@@ -203,7 +356,6 @@ int main() {
 	std::cout << "Starting clock..." << endl;
 
 	std::cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s: " << "Parsing file..." << endl;
-
 	ifstream input("input.test");
 	string error;
 	int err_line;
@@ -227,19 +379,16 @@ int main() {
 
 	primitives = AggregatePrimitive(objs);
 
-
 	std::cout << "Starting render..." << endl;
-
 	while (nextY <= height) {
 		Ray ray = generateRay(nextX, nextY);
 		Color color = traceRay(ray, 0);
 		film.storeSample(nextX, nextY, color);
 
 		// Calculate next sample location
-		float step = 1;
-		nextX += step;
+		nextX += aa_step;
 		if (nextX >= width) {
-			nextY += step;
+			nextY += aa_step;
 			nextX = 0.5;
 		}
 	}

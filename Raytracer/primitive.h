@@ -6,7 +6,9 @@
 #define PRIMITIVE_H
 
 #include "shape.h"
+#include "transform.h"
 #include <vector>
+
 
 class Intersection;
 
@@ -25,12 +27,20 @@ public:
 	 * Returns if the ray intersects with me.
 	 */
 	virtual bool intersect(Ray ray);
+
+	virtual void addTransform(vector<Transformation*> trans, vector<Transformation*> invTrans);
+
 	/**
 	 * Returns my brdf
 	 */
 	virtual BRDF getBRDF();
 
 	virtual BRDF* getBRDFPointer();
+
+	virtual void setkd(Color kd);
+	virtual void setks(Color ks);
+	virtual void setka(Color ka);
+	virtual void setsp(float sp);
 
 };
 
@@ -62,8 +72,8 @@ class GeometricPrimitive : public Primitive{
 private:
 	Shape* shape;
 	BRDF brdf;
-	const Matrix4f objToWorld;
-	const Matrix4f worldToObj;
+	vector<Transformation*> objToWorld;
+	vector<Transformation*> worldToObj;
 public:
 
 	/**
@@ -73,8 +83,13 @@ public:
 
 	bool intersect(Ray ray, float* t_hit, Intersection* in);
 	bool intersect(Ray ray);
+	void addTransform(vector<Transformation*> trans, vector<Transformation*> invTrans);
 	BRDF getBRDF();
 	BRDF* getBRDFPointer();
+	void setkd(Color kd);
+	void setks(Color ks);
+	void setka(Color ka);
+	void setsp(float sp);
 };
 
 /**
@@ -90,8 +105,14 @@ public:
 
 	bool intersect(Ray ray, float* t_hit, Intersection* in);
 	bool intersect(Ray ray);
+	void addTransform(vector<Transformation*> trans, vector<Transformation*> invTrans);
+	void addPrimitive(Primitive* p);
 	BRDF getBRDF();
 	BRDF* getBRDFPointer();
+	void setkd(Color kd);
+	void setks(Color ks);
+	void setka(Color ka);
+	void setsp(float sp);
 
 private:
 	std::vector<Primitive*> primitives;

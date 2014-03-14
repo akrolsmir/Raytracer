@@ -2,6 +2,7 @@
 #define BASIC_H
 
 #include "Eigen\Dense"
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;

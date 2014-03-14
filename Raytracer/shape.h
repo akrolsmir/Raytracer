@@ -70,10 +70,33 @@ public:
 
 	bool intersect(Ray ray);
 
-private:
+protected:
+	Vector3f getNormal(Point loc);
 	Point a;
 	Point b;
 	Point c;
+
+private:
+	Vector3f normal;
+};
+
+/**
+ * A triangle with specified normal vectors
+ */
+class NormalTriangle : public Triangle{
+public:
+	NormalTriangle(Point a, Point b, Point c, Vector3f an, Vector3f bn, Vector3f cn);
+	bool intersect(Ray ray, float* t_hit, Local* local);
+
+protected:
+	Vector3f getNormal(Point loc);
+	Point a;
+	Point b;
+	Point c;
+private:
+	Point an;
+	Point bn;
+	Point cn;
 };
 
 #endif
