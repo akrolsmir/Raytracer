@@ -47,7 +47,7 @@ public:
 	};
 
 	Ray generateRay(Point pixel_loc){
-		return Ray(pixel_loc, direction, .001, INFINITY);
+		return Ray(pixel_loc, direction);
 	};
 };
 
@@ -72,7 +72,7 @@ public:
 
 	Ray generateRay(Point pixel_loc){
 		Point dir = location - pixel_loc;
-		return Ray(pixel_loc, dir, .001, 1);
+		return Ray(pixel_loc, dir, .001, 1); //TODO consider min
 	};
 
 };

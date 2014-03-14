@@ -73,7 +73,16 @@ Color shade(Local local, BRDF brdf, Light& light) {
 
 Ray reflectRay(Local local, Ray ray) {
 	Vector3f direction = ray.dir - 2 * ray.dir.dot(local.normal) * local.normal;
-	return Ray(local.pos, direction, 0.0001, INFINITY);
+	return Ray(local.pos, direction);
+}
+
+// Returns false if total internal reflection.
+// Otherwise puts refraction ray in t and returns true
+bool refract(Vector3f d, Vector3f n, float nt, Vector3f* t) {
+	float k = 1 - (1 - d.dot(n) * d.dot(n)) / (nt * nt);
+	if (k < 0) return false;
+	*t = (d - n * d.dot(n)) / nt - n * sqrt(k);
+	return true;
 }
 
 float* t_hit = new float;
@@ -93,7 +102,7 @@ Color traceRay(Ray ray, int depth) {
 	Color result = ka_scene;
 
 	BRDF brdf = in->primitive->getBRDF();
-	BRDF amb = BRDF(brdf.ka, Color(0,0,0), Color(0,0,0), 0);
+	BRDF amb = BRDF(brdf.ka, Color(0, 0, 0), Color(0, 0, 0), 0);
 
 	for (Light* light : lights) {
 		Ray lightRay = light->generateRay(in->local.pos);
@@ -106,12 +115,40 @@ Color traceRay(Ray ray, int depth) {
 		else{
 			result += shade(in->local, amb, *light);
 		}
+		// TODO respond accordingly if refractive object hit
 	}
-	if (brdf.kr.norm() > 0) {
+
+	// Recursively computes refractions
+	if (brdf.n) {
+		Ray r = reflectRay(in->local, ray);
+		Vector3f d = ray.dir.normalized();
+		Vector3f n = in->local.normal;
+		Vector3f t;
+		float c;
+		if (d.dot(n) < 0) {
+			// Going into refractive surface
+			refract(d, n, brdf.n, &t);
+			c = -d.dot(n);
+		}
+		else {
+			// Coming out of refractive surface
+			if (refract(d, -n, 1 / brdf.n, &t))
+				c = t.dot(n);
+			else // Total internal reflection
+				return result + traceRay(r, depth + 1);
+		}
+		float R0 = (brdf.n - 1) * (brdf.n - 1) / (brdf.n + 1) * (brdf.n + 1);
+		float R = R0 + (1 - R0) * (1 - c) * (1 - c) * (1 - c) * (1 - c) * (1 - c);
+		result += R * traceRay(r, depth + 1) + (1 - R) * traceRay(Ray(in->local.pos, t), depth + 1); //TODO consider min
+	}
+
+	// Recursively computes reflections
+	else if (brdf.kr.norm()) {
 		Ray r = reflectRay(in->local, ray);
 		Color reflectColor = traceRay(r, depth + 1);
 		result += pairwise(brdf.kr, reflectColor);
 	}
+
 	return result;
 }
 
@@ -345,6 +382,11 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				float r, g, b;
 				ss >> r >> g >> b;
 				objs.back()->getBRDFPointer()->kr = Color(r, g, b);
+			}
+			else if (buf == "refraction"){
+				float s;
+				ss >> s;
+				objs.back()->getBRDFPointer()->n = s;
 			}
 			else {
 				/*disallow everything else*/

@@ -21,17 +21,25 @@ public:
 
 class Local{
 public:
+	Point pos;
+	Vector3f normal;
+
 	Local(){};
 	Local(Point p, Vector3f norm) :
 		pos(p), normal(norm.normalized()) {/*nothing*/
 	};
-	Point pos;
-	Vector3f normal;
 };
 
 class Ray{
 public:
+	Point pos;
+	Vector3f dir;
+	float t_min, t_max;
+
 	Ray(){};
+	Ray(Point p, Vector3f direction) :
+		pos(p), dir(direction), t_min(0.0001), t_max(INFINITY){/*nothing*/ //TODO consider min
+	};
 	Ray(Point p, Vector3f direction, float tMin, float tMax) :
 		pos(p), dir(direction), t_min(tMin), t_max(tMax){/*nothing*/
 	};
@@ -47,16 +55,13 @@ public:
 	bool inBounds(float t) {
 		return t_min <= t && t <= t_max;
 	}
-
-	Point pos;
-	Vector3f dir;
-	float t_min, t_max;
 };
 
 class BRDF{
 public:
 	Color ka, kd, ks, kr;
-	float sp;
+	float sp, n = 0;
+
 	BRDF() :
 		kd(Color()), ks(Color()), ka(Color()), sp(0.0){/*nothing*/
 	}
