@@ -1,21 +1,45 @@
 #this should be ignored
-size 1000 1000
+size 500 500
 output output4.png
-camera 0 0 10 0 0 -1 0 1 0 1
+camera 0 0 0 0 0 -1 0 1 0 1
 
-sphere 0.5 0.5 0.5 0.4
-diffuse 1.0 1.0 0.0
-specular 0.8 0.8 0.8
-shininess 16
-emission 0.1 0.1 0.0
+sphere 0 0 -17 2
+emission 0.1 0.1 0.1
+diffuse 1 0 0
+specular 0.9 0.9 0.9
+shininess 50
+reflectance 1 1 1
 
-sphere -0.3 -0.3 -0.3 0.5
-diffuse 1.0 1.0 0.0
-specular 0.8 0.8 0.8
-shininess 16
-emission 0.1 0.1 0.0
+sphere 0 4 -17 1.5
+emission 0.1 0.1 0.1
+diffuse 0 1 0
+specular 0.9 0.9 0.9
+shininess 50
+reflectance 1 1 1
 
-point 3 3 3 0.6 0.6 0.6
-point 200 200 200 0.6 0.6 0.6
-#directional 0 0 -1 0.6 0.6 0.6
-directional -1 -1 5 0.3 0.3 0.3
+sphere 4 0 -17 1.5
+emission 0.1 0.1 0.1
+diffuse 1 1 0
+specular .9 .9 .9
+shininess 50
+reflectance 1 1 1
+
+directional 0.58 -0.58 -0.58 1 1 1
+directional -0.58 0.58 0.58 1 1 1
+
+#sphere 0.5 0.5 0.5 0.4
+#diffuse 1.0 1.0 0.0
+#specular 0.8 0.8 0.8
+#shininess 16
+#emission 0.1 0.1 0.0#
+
+#sphere -0.3 -0.3 -0.3 0.5
+#diffuse 1.0 1.0 0.0
+#specular 0.8 0.8 0.8
+#shininess 16
+#emission 0.1 0.1 0.0#
+
+#point 3 3 3 0.6 0.6 0.6
+#point 200 200 200 0.6 0.6 0.6
+##directional 0 0 -1 0.6 0.6 0.6
+#directional -1 -1 5 0.3 0.3 0.3
