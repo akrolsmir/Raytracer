@@ -51,12 +51,17 @@ Color shade(Local local, BRDF brdf, Light& light) {
 	return result;
 }
 
+Ray reflectRay(Local local, Ray ray) {
+	Vector3f direction = ray.dir - 2 * ray.dir.dot(local.normal) * local.normal;
+	return Ray(local.pos, direction, 0.0001, INFINITY);
+}
+
 float* t_hit = new float;
 Intersection* in = new Intersection();
 
 Color traceRay(Ray ray, int depth) {
 	// Return black if depth exceeds threshold
-	if (depth > 4) {
+	if (depth > 5) {
 		return Color(0, 0, 0);
 	}
 
@@ -79,7 +84,11 @@ Color traceRay(Ray ray, int depth) {
 			result += shade(in->local, amb, *light);
 		}
 	}
-	//TODO handle mirror
+	if (brdf.kr.norm() > 0) {
+		Ray r = reflectRay(in->local, ray);
+		Color reflectColor = traceRay(r, depth + 1);
+		result += pairwise(brdf.kr, reflectColor);
+	}
 	return result;
 }
 
@@ -169,6 +178,11 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				ss >> r >> g >> b;
 				objs.back()->getBRDFPointer()->ka = Color(r, g, b);
 			}
+			else if (buf == "reflectance"){
+				float r, g, b;
+				ss >> r >> g >> b;
+				objs.back()->getBRDFPointer()->kr = Color(r, g, b);
+			}
 			else {
 				/*disallow everything else*/
 				PARSE_ERROR(curr_line, "Unexpected token", err_loc, error);
@@ -198,10 +212,10 @@ int main() {
 		exit(1);
 	}
 
-	UL = Point(-1, 1, 1);
-	UR = Point(1, 1, 1);
-	LR = Point(1, -1, 1);
-	LL = Point(-1, -1, 1);
+	UL = Point(-1, 1, -3);
+	UR = Point(1, 1, -3);
+	LR = Point(1, -1, -3);
+	LL = Point(-1, -1, -3);
 
 	// Begin main loop
 	float nextX = 0.5, nextY = 0.5;
@@ -209,7 +223,7 @@ int main() {
 	Film film = Film(width, height);
 
 	//objs.push_back(new GeometricPrimitive(new Triangle(Point(0.0, 0.0, 0.0), Point(0.0, 0.5, 0.0), Point(0.5, 0.0, 0.0)), 
-			//BRDF(Color(0.1, 0.1, 0.1), Color(0.3, 0.3, 0.0), Color(0.2, 0.2, 0.0), 0)));
+	//		BRDF(Color(0.1, 0.1, 0.1), Color(0.3, 0.3, 0.0), Color(0.8, 0.8, 0.8), 0)));
 
 	primitives = AggregatePrimitive(objs);
 

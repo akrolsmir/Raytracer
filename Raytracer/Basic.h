@@ -64,6 +64,9 @@ public:
 		kd(kd), ks(ks), ka(ka), sp(sp){/*nothing*/
 	}
 
+	BRDF(Color ka, Color kd, Color ks, float sp, Color kr) :
+		kd(kd), ks(ks), ka(ka), sp(sp), kr(kr){/*nothing*/
+	}
 };
 
 
