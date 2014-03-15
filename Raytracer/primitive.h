@@ -72,15 +72,19 @@ class GeometricPrimitive : public Primitive{
 private:
 	Shape* shape;
 	BRDF brdf;
+public:
+
 	vector<Transformation*> objToWorld;
 	vector<Transformation*> worldToObj;
-public:
 
 	/**
 	 * Constructor
 	 */
 	GeometricPrimitive(Shape* shape, BRDF brdf);
 
+	Vector3f getCenter();
+	Vector3f getMinBB();
+	Vector3f getMaxBB();
 	bool intersect(Ray ray, float* t_hit, Intersection* in);
 	bool intersect(Ray ray);
 	void addTransform(vector<Transformation*> trans, vector<Transformation*> invTrans);

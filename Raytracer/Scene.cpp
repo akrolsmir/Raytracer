@@ -9,6 +9,7 @@
 #include "light.h"
 
 #include "basic.h"
+#include "AABB.h"
 
 #define pairwise(a, b) Color(a(0) * b(0), a(1) * b(1), a(2) * b(2));
 
@@ -16,9 +17,9 @@
 
 using namespace std;
 
-
 int width, height, max_depth;
 int max_verts, max_vert_norms = 0;
+float aa = 1;
 float aa_step = 1;
 string output_name = "output.png";
 Camera camera = Camera();
@@ -42,6 +43,9 @@ vector<Vector3f> norms;
 AggregatePrimitive primitives;
 vector<AggregatePrimitive*> curr_obj;
 vector<Primitive*> objs;
+vector<GeometricPrimitive*> geo_primitives;
+//AABB* aabb;
+
 
 // Generates a ray from camera, through the screen coordinates x, y
 Ray generateRay(float x, float y) {
@@ -77,7 +81,7 @@ Intersection* in = new Intersection();
 
 Color traceRay(Ray ray, int depth) {
 	// Return black if depth exceeds threshold
-	if (depth > 5) {
+	if (depth > max_depth) {
 		return Color(0, 0, 0);
 	}
 
@@ -94,6 +98,9 @@ Color traceRay(Ray ray, int depth) {
 	for (Light* light : lights) {
 		Ray lightRay = light->generateRay(in->local.pos);
 		if (!primitives.intersect(lightRay)){
+			if (in->local.normal.dot(ray.dir) < 0){
+				in->local.normal = -in->local.normal;
+			}
 			result += shade(in->local, brdf, *light);
 		}
 		else{
@@ -136,8 +143,8 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				ss >> max_depth;
 			}
 			else if (buf == "aliasing"){
-				ss >> aa_step;
-				aa_step = 1 / aa_step;
+				ss >> aa;
+				aa_step = 1 / aa;
 			}
 			else if (buf == "output"){
 				ss >> output_name;
@@ -162,19 +169,21 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 						curr_obj.back()->addPrimitive(new_obj);
 					}
 					curr_obj.push_back(new_obj);
+					for (int i = 0; i < transform_stack.size(); i++){
+						curr_obj.back()->addTransform(transform_stack[i], inv_transform_stack[i]);
+					}
 				}
 				else {
 					curr_obj.pop_back();
-				}
-				for (int i = 0; i < transform_stack.size(); i++){
-					curr_obj.back()->addTransform(transform_stack[i], inv_transform_stack[i]);
 				}
 			}
 			else if (buf == "sphere"){
 				float x, y, z, r;
 				ss >> x >> y >> z >> r;
 				if (curr_obj.size() == 0){
-					objs.push_back(new GeometricPrimitive(new Sphere(Point(x, y, z), r), BRDF()));
+					GeometricPrimitive* sphere = new GeometricPrimitive(new Sphere(Point(x, y, z), r), BRDF());
+					objs.push_back(sphere);
+					geo_primitives.push_back(sphere);
 					for (int i = 0; i < transform_stack.size(); i++){
 						objs.back()->addTransform(transform_stack[i], inv_transform_stack[i]);
 					}
@@ -234,6 +243,7 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				else {
 					tri = new GeometricPrimitive(new Triangle(verts[vs[0] - 1], verts[vs[1] - 1], verts[vs[2] - 1]), BRDF());
 				}
+				geo_primitives.push_back(tri);
 				if (curr_obj.size() == 0){
 					objs.push_back(tri);
 					for (int i = 0; i < transform_stack.size(); i++){
@@ -251,25 +261,25 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				float x, y, z;
 				ss >> x >> y >> z;
 				curr_transform.push_back(new Translate(x, y, z));
-				curr_inv_transform.push_back(new Translate(-x, -y, -z));
+				curr_inv_transform.insert(curr_inv_transform.begin(), new Translate(-x, -y, -z));
 			}
 			else if (buf == "rotate"){
 				double x, y, z, r;
 				ss >> x >> y >> z >> r;
 				curr_transform.push_back(new Rotate(Vector3f(x,y,z),r));
-				curr_inv_transform.push_back(new Rotate(Vector3f(x,y,z),-r));
+				curr_inv_transform.insert(curr_inv_transform.begin(), new Rotate(Vector3f(x, y, z), -r));
 			}
 			else if (buf == "scale"){
 				float x, y, z;
 				ss >> x >> y >> z;
 				curr_transform.push_back(new Scale(x, y, z));
-				curr_inv_transform.push_back(new Scale(1/x, 1/y, 1/z));
+				curr_inv_transform.insert(curr_inv_transform.begin(), new Scale(1 / x, 1 / y, 1 / z));
 			}
 			else if (buf == "pushTransform"){
 				transform_stack.push_back(curr_transform);
-				inv_transform_stack.push_back(curr_inv_transform);
+				inv_transform_stack.insert(inv_transform_stack.begin(),curr_inv_transform);
 				curr_transform.clear();
-				curr_inv_transform.clear();
+				curr_inv_transform.erase(curr_inv_transform.begin());
 
 			}
 			else if (buf == "popTransform"){
@@ -355,7 +365,7 @@ int main() {
 	clock_t start = clock();
 	std::cout << "Starting clock..." << endl;
 
-	std::cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s: " << "Parsing file..." << endl;
+	std::cout << "Parsing file..." << endl;
 	ifstream input("input.test");
 	string error;
 	int err_line;
@@ -363,6 +373,9 @@ int main() {
 		cout << "Error: Line " << err_line << ": " << error << endl;
 		exit(1);
 	}
+
+	std::cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s: " << "Parsing complete" << endl;
+	std::cout << "Initializing scene..." << endl;
 
 	UL = Point(-1, 1, -3);
 	UR = Point(1, 1, -3);
@@ -374,10 +387,17 @@ int main() {
 
 	Film film = Film(width, height);
 
+	//aabb = new AABB(geo_primitives);
+
 	//objs.push_back(new GeometricPrimitive(new Triangle(Point(0.0, 0.0, 0.0), Point(0.0, 0.5, 0.0), Point(0.5, 0.0, 0.0)), 
 	//		BRDF(Color(0.1, 0.1, 0.1), Color(0.3, 0.3, 0.0), Color(0.8, 0.8, 0.8), 0)));
 
 	primitives = AggregatePrimitive(objs);
+
+	size_t size = width*height*aa*aa;
+	size_t perc = size / 100;
+	size_t num_completed = 0;
+
 
 	std::cout << "Starting render..." << endl;
 	while (nextY <= height) {
@@ -390,6 +410,9 @@ int main() {
 		if (nextX >= width) {
 			nextY += aa_step;
 			nextX = 0.5;
+		}
+		if ((++num_completed) % perc == 0){
+			cout << "Progress: " << num_completed / perc << "% -- " << (clock() - start) / (double)CLOCKS_PER_SEC << "s\n";
 		}
 	}
 

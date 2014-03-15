@@ -12,6 +12,17 @@ bool Shape::intersect(Ray ray, float* t_hit, Local* local){
 	UNIMPLEMENTED("Intersect");
 }
 
+Vector3f Shape::getCenter(){
+	UNIMPLEMENTED("getCenter");
+}
+
+Vector3f Shape::getMinBB(){
+	UNIMPLEMENTED("getMinBB");
+}
+Vector3f Shape::getMaxBB(){
+	UNIMPLEMENTED("getMaxBB");
+}
+
 Sphere::Sphere() :
 	center(Point(0.0, 0.0, 0.0)), radius(1.0){/*nothing*/}
 
@@ -42,6 +53,18 @@ bool Sphere::intersect(Ray ray, float* t_hit, Local* local){
 		local->normal = (local->pos - center).normalized();
 	}
 	return true;
+}
+
+Vector3f Sphere::getCenter(){
+	return center;
+}
+
+Vector3f Sphere::getMinBB(){
+	return center - radius * Vector3f(-1, -1, -1) / sqrt(3);
+}
+
+Vector3f Sphere::getMaxBB(){
+	return center + radius * Vector3f(1, 1, 1) / sqrt(3);
 }
 
 Triangle::Triangle() :
@@ -87,18 +110,37 @@ bool Triangle::intersect(Ray ray, float* t_hit, Local* local){
 	if (beta < 0 || beta > 1 - gamma){
 		return false;
 	}
-
 	if (t_hit && local) {
 		*t_hit = t;
 
 		local->pos = ray.calculatePosition(t);
-		local->normal = getNormal(Point(1 - beta - gamma, beta, gamma));
+		local->normal = this->getNormal(Point(1 - beta - gamma, beta, gamma));
 	}
 	return true;
 }
 
 Vector3f Triangle::getNormal(Point loc){
 	return normal;
+}
+
+Vector3f Triangle::getCenter(){
+	return (a + b + c) / 3;
+}
+
+Vector3f Triangle::getMinBB(){
+	return Vector3f(min(a(0), min(b(0), c(0))), min(a(1), min(b(1), c(1))), min(a(2), min(b(2), c(2))));
+}
+
+Vector3f Triangle::getMaxBB(){
+	return Vector3f(max(a(0), max(b(0), c(0))), max(a(1), max(b(1), c(1))), max(a(2), max(b(2), c(2))));
+}
+
+Vector3f NormalTriangle::getMinBB(){
+	return Vector3f(min(a(0), min(b(0), c(0))), min(a(1), min(b(1), c(1))), min(a(2), min(b(2), c(2))));
+}
+
+Vector3f NormalTriangle::getMaxBB(){
+	return Vector3f(max(a(0), max(b(0), c(0))), max(a(1), max(b(1), c(1))), max(a(2), max(b(2), c(2))));
 }
 
 NormalTriangle::NormalTriangle(Point a, Point b, Point c, Vector3f an, Vector3f bn, Vector3f cn) :
@@ -136,12 +178,11 @@ bool NormalTriangle::intersect(Ray ray, float* t_hit, Local* local){
 	if (beta < 0 || beta > 1 - gamma){
 		return false;
 	}
-
 	if (t_hit && local) {
 		*t_hit = t;
 
 		local->pos = ray.calculatePosition(t);
-		local->normal = getNormal(Point(1 - beta - gamma, beta, gamma));
+		local->normal = this->getNormal(Point(1 - beta - gamma, beta, gamma));
 	}
 	return true;
 }

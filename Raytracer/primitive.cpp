@@ -39,24 +39,34 @@ void Primitive::setsp(float sp){
 GeometricPrimitive::GeometricPrimitive(Shape* shape, BRDF brdf) :
 	shape(shape), brdf(brdf){/*nothing*/}
 
+Vector3f GeometricPrimitive::getCenter(){
+	return shape->getCenter();
+}
+
+Vector3f GeometricPrimitive::getMinBB(){
+	return shape->getMinBB();
+}
+Vector3f GeometricPrimitive::getMaxBB(){
+	return shape->getMaxBB();
+}
+
 bool GeometricPrimitive::intersect(Ray ray, float* t_hit, Intersection* in){
 	Ray oray = ray;
+	Local oLocal = Local();
 	for (int i = worldToObj.size() - 1; i >= 0; i--){
 		oray.dir = worldToObj[i]->applyTransformation(oray.dir, 0);
 		oray.pos = worldToObj[i]->applyTransformation(oray.pos, 1);
 	}
-	Local oLocal = Local();
 	if (!shape->intersect(oray, t_hit, &oLocal)){
 		return false;
 	}
 	in->primitive = this;
 	for (int i = objToWorld.size() - 1; i >= 0; i--){
 		oLocal.pos = objToWorld[i]->applyTransformation(oLocal.pos, 1);
+		oLocal.normal = objToWorld[i]->applyTransformation(oLocal.normal, 0).normalized();
 	}
 	in->local = oLocal;
 	return true;
-
-
 }
 bool GeometricPrimitive::intersect(Ray ray){
 	Ray oray = ray;
@@ -130,7 +140,9 @@ void AggregatePrimitive::addPrimitive(Primitive* p){
 }
 
 void AggregatePrimitive::addTransform(vector<Transformation*> trans, vector<Transformation*> invTrans){
-	UNIMPLEMENTED("addTransform");
+	for (size_t i = 0; i < primitives.size(); i++){
+		primitives[i]->addTransform(trans, invTrans);
+	}
 }
 
 

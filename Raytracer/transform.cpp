@@ -1,6 +1,7 @@
 #include "transform.h"
 #include <iostream>
 #define UNIMPLEMENTED(str) std::cout << "Unimplemented method " << str << std::endl; exit(0);
+#define PI 3.1415926535879
 
 Vector3f Transformation::applyTransformation(Vector3f val, int type){
 	UNIMPLEMENTED("applyTransformation");
@@ -33,9 +34,10 @@ Vector3f Translate::applyTransformation(Vector3f val, int type){
 
 Rotate::Rotate(Vector3f axis, double angle){
 	Vector3f norm_axis = axis.normalized();
-	Vector3f imag = norm_axis*sin(angle/2);
-	double real = cos(angle / 2);
-	quat = Quaternionf(imag(0), imag(1), imag(2), real);
+	angle = angle * PI / 360;
+	Vector3f imag = norm_axis*sin(angle);
+	double real = cos(angle);
+	quat = Quaternionf(real, imag(0), imag(1), imag(2));
 }
 
 Vector3f Rotate::applyTransformation(Vector3f val, int type){

@@ -23,6 +23,10 @@ public:
 	 * Returns if the ray intersects with me.
 	 */
 	virtual bool intersect(Ray ray);
+
+	virtual Vector3f getCenter();
+	virtual Vector3f getMinBB();
+	virtual Vector3f getMaxBB();
 };
 
 /**
@@ -43,6 +47,10 @@ public:
 	bool intersect(Ray ray, float* t_hit, Local* local);
 
 	bool intersect(Ray ray);
+
+	Vector3f getCenter();
+	Vector3f getMinBB();
+	Vector3f getMaxBB();
 
 private:
 	Point center;
@@ -70,6 +78,10 @@ public:
 
 	bool intersect(Ray ray);
 
+	Vector3f getCenter();
+	Vector3f getMinBB();
+	Vector3f getMaxBB();
+
 protected:
 	Vector3f getNormal(Point loc);
 	Point a;
@@ -87,6 +99,8 @@ class NormalTriangle : public Triangle{
 public:
 	NormalTriangle(Point a, Point b, Point c, Vector3f an, Vector3f bn, Vector3f cn);
 	bool intersect(Ray ray, float* t_hit, Local* local);
+	Vector3f getMinBB();
+	Vector3f getMaxBB();
 
 protected:
 	Vector3f getNormal(Point loc);
