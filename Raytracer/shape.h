@@ -113,4 +113,61 @@ private:
 	Point cn;
 };
 
+class Parallelogram : public Shape {
+public:
+	Parallelogram(Point a, Point b, Point c) :
+		a(a), b(b), c(c){/*nothing*/
+	}
+
+	bool intersect(Ray ray){
+		//UNIMPLEMENTED
+		exit(0);
+	}
+	bool intersect(Ray ray, float* t_hit, Local* local){
+		//UNIMPLEMENTED
+		exit(0);
+	}
+
+	bool intersect(Ray ray, float* be, float* ga){
+		Matrix3f M;
+		Vector3f rayStart = ray.pos;
+		Vector3f rayDirection = ray.dir;
+		Vector3f ab = a - b;
+		Vector3f ac = a - c;
+		Vector3f aStart = a - rayStart;
+		M << ab, ac, rayDirection;
+		float MDet = M.determinant();
+		if (MDet == 0) {
+			return false;
+		}
+		Matrix3f tMatrix;
+		tMatrix << ab, ac, aStart;
+		float t = tMatrix.determinant() / MDet;
+		if (!ray.inBounds(t)){
+			return false;
+		}
+		Matrix3f gammaMatrix;
+		gammaMatrix << ab, aStart, rayDirection;
+		float gamma = gammaMatrix.determinant() / MDet;
+		if (gamma < 0 || gamma > 1){
+			return false;
+		}
+
+		Matrix3f betaMatrix;
+		betaMatrix << aStart, ac, rayDirection;
+		float beta = betaMatrix.determinant() / MDet;
+		if (beta < 0 || beta > 1){
+			return false;
+		}
+
+		*be = beta;
+		*ga = gamma;
+		return true;
+	}
+private:
+	Point a;
+	Point b;
+	Point c;
+};
+
 #endif

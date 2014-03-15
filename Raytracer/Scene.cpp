@@ -85,6 +85,39 @@ bool refract(Vector3f d, Vector3f n, float nt, Vector3f* t) {
 	return true;
 }
 
+float *beta = new float, *gamma = new float;
+FIBITMAP *negZimage, *posZimage, *negYimage, *posYimage, *negXimage, *posXimage;
+
+Parallelogram negZ = Parallelogram(Point(-100, -100, -100), Point(100, -100, -100), Point(-100, 100, -100));
+Parallelogram posZ = Parallelogram(Point(-100, -100, 100), Point(100, -100, 100), Point(-100, 100, 100));
+// TODO code in other parts of the environment map
+
+Color environmentMap(Ray ray) {
+	RGBQUAD rgbquad;
+	if (negZ.intersect(ray, beta, gamma)) {
+		FreeImage_GetPixelColor(negZimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
+		return Color(rgbquad.rgbRed / 255.0, rgbquad.rgbGreen / 255.0, rgbquad.rgbBlue / 255.0);
+	}
+	else if (posZ.intersect(ray, beta, gamma)) {
+		FreeImage_GetPixelColor(posZimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
+		return Color(rgbquad.rgbRed / 255.0, rgbquad.rgbGreen / 255.0, rgbquad.rgbBlue / 255.0);
+	}
+	//else if (negY.intersect(ray, beta, gamma)) {
+	//	FreeImage_GetPixelColor(negYimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
+	//}
+	//else if (posY.intersect(ray, beta, gamma)) {
+	//	FreeImage_GetPixelColor(posYimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
+	//}
+	//else if (negX.intersect(ray, beta, gamma)) {
+	//	FreeImage_GetPixelColor(negXimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
+	//}
+	//else if (posX.intersect(ray, beta, gamma)) {
+	//	FreeImage_GetPixelColor(posXimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
+	//}
+	
+	return Color(0, 0, 0);
+}
+
 float* t_hit = new float;
 Intersection* in = new Intersection();
 
@@ -97,6 +130,7 @@ Color traceRay(Ray ray, int depth) {
 	// Return black if no intersection
 	if (!primitives.intersect(ray, t_hit, in)){
 		return ka_scene;
+		//return environmentMap(ray);
 	}
 
 	Color result = ka_scene;
@@ -424,6 +458,10 @@ int main() {
 	LR = Point(1, -1, -3);
 	LL = Point(-1, -1, -3);
 
+	negZimage = FreeImage_Load(FreeImage_GetFIFFromFilename("negz.jpg"), "negz.jpg");
+	posZimage = FreeImage_Load(FreeImage_GetFIFFromFilename("posz.jpg"), "posz.jpg");
+	// TODO other sides of environment map
+
 	// Begin main loop
 	float nextX = 0.5, nextY = 0.5;
 
@@ -439,7 +477,6 @@ int main() {
 	size_t size = width*height*aa*aa;
 	size_t perc = size / 100;
 	size_t num_completed = 0;
-
 
 	std::cout << "Starting render..." << endl;
 	while (nextY <= height) {
