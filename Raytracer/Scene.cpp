@@ -27,11 +27,11 @@ Point UL, UR, LR, LL;
 Color ka_scene;
 vector<Light*> lights;
 
-//this is the ugliest shit
-typedef struct {
-	Vector3f pt;
-	Vector3f normal;
-} VertexNormal_t;
+////this is the ugliest shit
+//typedef struct {
+//	Vector3f pt;
+//	Vector3f normal;
+//} VertexNormal_t;
 
 vector<vector<Transformation*>> transform_stack;
 vector<vector<Transformation*>> inv_transform_stack;
@@ -44,7 +44,7 @@ AggregatePrimitive primitives;
 vector<AggregatePrimitive*> curr_obj;
 vector<Primitive*> objs;
 vector<GeometricPrimitive*> geo_primitives;
-//AABB* aabb;
+AABB* aabb;
 
 
 // Generates a ray from camera, through the screen coordinates x, y
@@ -67,7 +67,6 @@ Color shade(Local local, BRDF brdf, Light& light) {
 	Vector3f reflected = (2 * direction.dot(local.normal) * local.normal) - direction;
 	dot = reflected.dot((camera.lookFrom - local.pos).normalized());
 	result += pow(max(0, dot), brdf.sp) * pairwise(brdf.ks, light.color);
-
 	return result;
 }
 
@@ -128,7 +127,7 @@ Color traceRay(Ray ray, int depth) {
 	}
 
 	// Return black if no intersection
-	if (!primitives.intersect(ray, t_hit, in)){
+	if (!aabb->intersect(ray, t_hit, in)){
 		return ka_scene;
 		//return environmentMap(ray);
 	}
@@ -137,13 +136,14 @@ Color traceRay(Ray ray, int depth) {
 
 	BRDF brdf = in->primitive->getBRDF();
 	BRDF amb = BRDF(brdf.ka, Color(0, 0, 0), Color(0, 0, 0), 0);
-
 	for (Light* light : lights) {
 		Ray lightRay = light->generateRay(in->local.pos);
-		if (!primitives.intersect(lightRay)){
+		if (!aabb->intersect(lightRay)){
+			/*
 			if (in->local.normal.dot(ray.dir) < 0){
 				in->local.normal = -in->local.normal;
 			}
+			*/
 			result += shade(in->local, brdf, *light);
 		}
 		else{
@@ -182,7 +182,6 @@ Color traceRay(Ray ray, int depth) {
 		Color reflectColor = traceRay(r, depth + 1);
 		result += pairwise(brdf.kr, reflectColor);
 	}
-
 	return result;
 }
 
@@ -437,12 +436,16 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 	return true;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	clock_t start = clock();
 	std::cout << "Starting clock..." << endl;
 
 	std::cout << "Parsing file..." << endl;
-	ifstream input("input.test");
+	string in = "input.test";
+	if (argc == 2){
+		in = argv[1];
+	}
+	ifstream input(in);
 	string error;
 	int err_line;
 	if (!parse_file(&input, &error, &err_line)){
@@ -467,7 +470,7 @@ int main() {
 
 	Film film = Film(width, height);
 
-	//aabb = new AABB(geo_primitives);
+	aabb = new AABB(geo_primitives);
 
 	//objs.push_back(new GeometricPrimitive(new Triangle(Point(0.0, 0.0, 0.0), Point(0.0, 0.5, 0.0), Point(0.5, 0.0, 0.0)), 
 	//		BRDF(Color(0.1, 0.1, 0.1), Color(0.3, 0.3, 0.0), Color(0.8, 0.8, 0.8), 0)));

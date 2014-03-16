@@ -60,11 +60,11 @@ Vector3f Sphere::getCenter(){
 }
 
 Vector3f Sphere::getMinBB(){
-	return center - radius * Vector3f(-1, -1, -1) / sqrt(3);
+	return center + radius * Vector3f(-1, -1, -1);
 }
 
 Vector3f Sphere::getMaxBB(){
-	return center + radius * Vector3f(1, 1, 1) / sqrt(3);
+	return center + radius * Vector3f(1, 1, 1);
 }
 
 Triangle::Triangle() :
@@ -80,6 +80,7 @@ bool Triangle::intersect(Ray ray){
 }
 
 bool Triangle::intersect(Ray ray, float* t_hit, Local* local){
+
 	Matrix3f M;
 	Vector3f rayStart = ray.pos;
 	Vector3f rayDirection = ray.dir;
@@ -115,6 +116,9 @@ bool Triangle::intersect(Ray ray, float* t_hit, Local* local){
 
 		local->pos = ray.calculatePosition(t);
 		local->normal = this->getNormal(Point(1 - beta - gamma, beta, gamma));
+		if (local->normal.dot(ray.dir) < 0){
+			local->normal = -local->normal;
+		}
 	}
 	return true;
 }

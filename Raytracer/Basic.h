@@ -63,11 +63,11 @@ public:
 	float sp, n = 0;
 
 	BRDF() :
-		kd(Color()), ks(Color()), ka(Color()), sp(0.0){/*nothing*/
+		kd(Color(0.0, 0.0, 0.0)), ks(Color(0.0, 0.0, 0.0)), ka(Color(0.0, 0.0, 0.0)), sp(0.0), kr(Color(0.0, 0.0, 0.0)){/*nothing*/
 	}
 
 	BRDF(Color ka, Color kd, Color ks, float sp) :
-		kd(kd), ks(ks), ka(ka), sp(sp){/*nothing*/
+		kd(kd), ks(ks), ka(ka), sp(sp), kr(Color()){/*nothing*/
 	}
 
 	BRDF(Color ka, Color kd, Color ks, float sp, Color kr) :
@@ -76,4 +76,4 @@ public:
 };
 
 
-#endif BASIC_H
+#endif

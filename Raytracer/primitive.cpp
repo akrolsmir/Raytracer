@@ -57,6 +57,7 @@ bool GeometricPrimitive::intersect(Ray ray, float* t_hit, Intersection* in){
 		oray.dir = worldToObj[i]->applyTransformation(oray.dir, 0);
 		oray.pos = worldToObj[i]->applyTransformation(oray.pos, 1);
 	}
+	Shape* test = shape;
 	if (!shape->intersect(oray, t_hit, &oLocal)){
 		return false;
 	}
