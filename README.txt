@@ -1,4 +1,4 @@
-A very magnificent Raytracer, by Alec Mouri and Austin Chen
+A very magnificent Raytracer, by Alec Mouri (cs184-cq) and Austin Chen (cs184-cn)
 
 This application is intended to be built with Microsoft Visual Studio 2013 and uses the Eigen library.
 
