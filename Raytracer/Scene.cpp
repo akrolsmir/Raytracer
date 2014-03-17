@@ -26,6 +26,8 @@ Camera camera = Camera();
 Point UL, UR, LR, LL;
 Color ka_scene;
 vector<Light*> lights;
+bool dof = false;
+float depth_dist;
 
 ////this is the ugliest shit
 //typedef struct {
@@ -51,7 +53,16 @@ AABB* aabb;
 Ray generateRay(float x, float y) {
 	float u = x / width, v = y / height;
 	Point p = (1 - u) * ((1 - v) * LL + v * UL) + u * ((1 - v) * LR + v * UR);
-	return Ray(camera.lookFrom, p - camera.lookFrom, 1, INFINITY);
+	if (!dof){
+		return Ray(camera.lookFrom, p - camera.lookFrom, 1, INFINITY);
+	}
+	else {
+		Vector3f start;
+		start(0) = -.05 + camera.lookFrom(0) + rand() / (RAND_MAX / .1);
+		start(1) = -.05 + camera.lookFrom(1) + rand() / (RAND_MAX / .1);
+		start(2) = camera.lookFrom(2);
+		return Ray(start, p - start, 1, INFINITY);
+	}
 }
 
 Color shade(Local local, BRDF brdf, Light& light) {
@@ -222,12 +233,29 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 			else if (buf == "camera"){
 				float x, y, z;
 				ss >> x >> y >> z;
+				if (!dof){
+					UL = Point(-1, 1, -1 + camera.lookFrom(2));
+					UR = Point(1, 1, -1 + camera.lookFrom(2));
+					LR = Point(1, -1, -1 + camera.lookFrom(2));
+					LL = Point(-1, -1, -1 + camera.lookFrom(2));
+				}
+				else {
+					UL = Point(-1, 1, -depth_dist + camera.lookFrom(2));
+					UR = Point(1, 1, -depth_dist + camera.lookFrom(2));
+					LR = Point(1, -1, -depth_dist + camera.lookFrom(2));
+					LL = Point(-1, -1, -depth_dist + camera.lookFrom(2));
+				}
 				camera.lookFrom = Point(x, y, z);
-				ss >> x >> y >> z;
-				camera.lookAt = Point(x, y, z);
-				ss >> x >> y >> z;
-				camera.up = Point(x, y, z);
-				ss >> camera.fov;
+				for (size_t i = 0; i < transform_stack.size(); i++){
+					for (size_t j = 0; j < transform_stack[i].size(); j++){
+						camera.lookFrom = transform_stack[i][j]->applyTransformation(camera.lookFrom, 1);
+						UL = transform_stack[i][j]->applyTransformation(UL, 1);
+						UR = transform_stack[i][j]->applyTransformation(UR, 1);
+						LR = transform_stack[i][j]->applyTransformation(LR, 1);
+						LL = transform_stack[i][j]->applyTransformation(LL, 1);
+					}
+				}
+				cout << "";
 			}
 			else if (buf == "g"){
 				if (ss >> buf){
@@ -421,6 +449,10 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				ss >> s;
 				objs.back()->getBRDFPointer()->n = s;
 			}
+			else if (buf == "dof"){
+				ss >> depth_dist;
+				dof = true;
+			}
 			else {
 				/*disallow everything else*/
 				PARSE_ERROR(curr_line, "Unexpected token", err_loc, error);
@@ -439,13 +471,17 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 int main(int argc, char* argv[]) {
 	clock_t start = clock();
 	std::cout << "Starting clock..." << endl;
-
-	std::cout << "Parsing file..." << endl;
-	string in = "input.test";
+	string in;
 	if (argc == 2){
 		in = argv[1];
 	}
+	else {
+		cout << "Location of input file: ";
+		cin >> in;
+	}
 	ifstream input(in);
+
+	std::cout << "Parsing file..." << endl;
 	string error;
 	int err_line;
 	if (!parse_file(&input, &error, &err_line)){
@@ -455,11 +491,6 @@ int main(int argc, char* argv[]) {
 
 	std::cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s: " << "Parsing complete" << endl;
 	std::cout << "Initializing scene..." << endl;
-
-	UL = Point(-1, 1, -3);
-	UR = Point(1, 1, -3);
-	LR = Point(1, -1, -3);
-	LL = Point(-1, -1, -3);
 
 	negZimage = FreeImage_Load(FreeImage_GetFIFFromFilename("negz.jpg"), "negz.jpg");
 	posZimage = FreeImage_Load(FreeImage_GetFIFFromFilename("posz.jpg"), "posz.jpg");
@@ -499,6 +530,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	film.writeImage(output_name);
+	ofstream note(output_name + "_notes");
+	note << "Input file: " << in;
+	note << endl << "Time ran: " << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	cout << "Enter to exit." << endl;
 	cin.ignore();
