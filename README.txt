@@ -1,19 +1,33 @@
 A very magnificent Raytracer, by Alec Mouri and Austin Chen
 
-This application is intended to be built with Microsoft Visual Studio 2013.
+This application is intended to be built with Microsoft Visual Studio 2013 and uses the Eigen library.
 
-This raytracer supports linear translation, basic ellipsoid and polygon drawing, reading of modified obj files,
-refractions, mirror reflections, motion blur, Phong shading, shadows, point and directional lighting, and png writing.
+This raytracer has the following features:
+->Parsing of modified .obj files (described below)
+->Primitive definition of spheres and triangles
+->Linear transformations (ie. translations, rotations, scaling)
+->Shading with the Phong illumination model
+->Specification of point and directional lights
+->Arbitrary camera positioning + transformations of the viewing plane
+->Acceleration with AABB-trees
+->Depth of field
+->Motion blur
+->Anti-aliasing
+->Definition of environment mappings
+->Reflections
+->Refractions
+->Shadows
+->Writing to .png images 
 
-The input file is always of the name "input.test". It has the following commands:
+The input file is a file of the form <imagename>-<number>.test. It supports the following commands.
 
 # comment -- The hash tag denotes a comment. The line following '#' is ignored.
 size height width -- This must be the first line of input that is neither a comment nor a blank line. Specifies the image size.
-maxdepth max_depth -- The maximum recursion depth of the raytracer. Default is 5.
+maxdepth max_depth -- The maximum recursion depth of the raytracer. Default is 0.
 aliasing aa -- The number of rays to be sent per pixel is aa^2. Default is 1.
 output output_name -- The name of the output file.
-camera x y z lx ly lz upx upy upz fov -- x,y,z is the camera position. lx, ly, lz is the place where the camera is looking. upx upy upz is the direction of the up vector. fov is the field of view. Proper behavior should have (lx,ly,lz) = (0,0,1), (upx,upy,upz) = (0,1,0), and fov = 1
-g name -- specifies a group. All code following it and preceding a "g" denotes an object.
+camera x y z -- x,y,z is the camera position. The camera always points towards the viewing plane centered at (0, 0, -1), unless the camera is transformed.
+g name -- specifies a group. All code following it and preceding a "g" denotes an object. Modifiers such as diffuse coefficients will be specified to all members of the group currently defined.
 sphere x y z r -- x y z is the center, r is the radius of a sphere
 maxverts max_verts -- The maximum number of vertices in the scene.
 maxvertnorms max_verts -- The maximum number of vertices with normals in the scene.
@@ -33,3 +47,10 @@ specular r g b -- Specifies the specular component of the preceding object to be
 shininess sp -- Specifies the roughness of the preceding object to be sp
 emission r g b -- Specifies the ambiant coefficient of the preceding object to be r g b
 reflectance r g b -- Specifies the reflectance coefficient of the preceding object to be r g b
+envmap filename x1 y1 z1 x2 y2 z2 x3 y3 z3 -- Defines an environment map with source filename at the location specified by the parallelogram defining (x1,y1,z1),(x2,y2,z2),(x3,y3,z3)
+dof depth_dist -- Specifies the location of the lens and turns depth of field on.
+frames num -- Specifies the number of frames to draw with motion blur.
+velocity dx dy dz -- Specifies a velocity to the most recently defined object.
+acceleration dx dy dz -- Specifies an acceleration to the most recently defined object.
+
+Output is an image and a notes file denoting the name of the input file and how long it took to render the image.
