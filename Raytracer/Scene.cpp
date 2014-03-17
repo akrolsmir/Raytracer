@@ -125,9 +125,14 @@ Color traceRay(Ray ray, int depth) {
 		return Color(0, 0, 0);
 	}
 
-	// Return black if no intersection
-	if (!aabb->intersect(ray, t_hit, in)){
-		return environmentMap(ray);
+	// Use environment map if no intersection
+	if (frames > 1) {
+		if (!primitives.intersect(ray, t_hit, in))
+			return environmentMap(ray);
+	}
+	else {
+		if (!aabb->intersect(ray, t_hit, in))
+			return environmentMap(ray);
 	}
 
 	Color result = ka_scene;
