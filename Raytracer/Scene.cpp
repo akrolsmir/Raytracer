@@ -234,16 +234,16 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				float x, y, z;
 				ss >> x >> y >> z;
 				if (!dof){
-					UL = Point(-1, 1, -1 + camera.lookFrom(2));
-					UR = Point(1, 1, -1 + camera.lookFrom(2));
-					LR = Point(1, -1, -1 + camera.lookFrom(2));
-					LL = Point(-1, -1, -1 + camera.lookFrom(2));
+					UL = Point(-1, 1, -1);
+					UR = Point(1, 1, -1);
+					LR = Point(1, -1, -1);
+					LL = Point(-1, -1, -1);
 				}
 				else {
-					UL = Point(-1, 1, -depth_dist + camera.lookFrom(2));
-					UR = Point(1, 1, -depth_dist + camera.lookFrom(2));
-					LR = Point(1, -1, -depth_dist + camera.lookFrom(2));
-					LL = Point(-1, -1, -depth_dist + camera.lookFrom(2));
+					UL = Point(-1, 1, -depth_dist);
+					UR = Point(1, 1, -depth_dist);
+					LR = Point(1, -1, -depth_dist);
+					LL = Point(-1, -1, -depth_dist);
 				}
 				camera.lookFrom = Point(x, y, z);
 				for (size_t i = 0; i < transform_stack.size(); i++){
