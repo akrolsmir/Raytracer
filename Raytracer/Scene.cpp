@@ -469,8 +469,6 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 }
 
 int main(int argc, char* argv[]) {
-	clock_t start = clock();
-	std::cout << "Starting clock..." << endl;
 	string in;
 	if (argc == 2){
 		in = argv[1];
@@ -480,6 +478,8 @@ int main(int argc, char* argv[]) {
 		cin >> in;
 	}
 	ifstream input(in);
+	clock_t start = clock();
+	std::cout << "Starting clock..." << endl;
 
 	std::cout << "Parsing file..." << endl;
 	string error;
@@ -530,7 +530,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	film.writeImage(output_name);
-	ofstream note(output_name + "_notes");
+	string num;
+	stringstream ss_output(output_name);
+	getline(ss_output, num, '-');
+	getline(ss_output, num, '.');
+	ofstream note("Notes/notes-" + num);
 	note << "Input file: " << in;
 	note << endl << "Time ran: " << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
 	cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
