@@ -71,10 +71,9 @@ public:
  * the material properties of the shape
  */
 class GeometricPrimitive : public Primitive{
-private:
+public:
 	Shape* shape;
 	BRDF brdf;
-public:
 
 	vector<Transformation*> objToWorld;
 	vector<Transformation*> worldToObj;

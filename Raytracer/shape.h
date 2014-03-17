@@ -27,6 +27,7 @@ public:
 	virtual Vector3f getCenter();
 	virtual Vector3f getMinBB();
 	virtual Vector3f getMaxBB();
+	virtual void setCenter(Point c){};
 };
 
 /**
@@ -51,6 +52,9 @@ public:
 	Vector3f getCenter();
 	Vector3f getMinBB();
 	Vector3f getMaxBB();
+	void setCenter(Point c){
+		center = c;
+	}
 
 private:
 	Point center;

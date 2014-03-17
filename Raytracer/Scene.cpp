@@ -35,6 +35,10 @@ float depth_dist;
 //	Vector3f normal;
 //} VertexNormal_t;
 
+int frames = 1;
+vector<Vector3f> accelerations, velocities;
+vector<GeometricPrimitive*> accels, velos;
+
 vector<vector<Transformation*>> transform_stack;
 vector<vector<Transformation*>> inv_transform_stack;
 vector<Transformation*> curr_transform;
@@ -238,7 +242,6 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 						LL = transform_stack[i][j]->applyTransformation(LL, 1);
 					}
 				}
-				cout << "";
 			}
 			else if (buf == "g"){
 				if (ss >> buf){
@@ -443,11 +446,13 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 				}
 			}
 			else if (buf == "envmap"){
-				char* filename;
+				string filename;
 				float x1, y1, z1, x2, y2, z2, x3, y3, z3;
 				ss >> filename;
-				ss >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
-				FIBITMAP* image = FreeImage_Load(FreeImage_GetFIFFromFilename(filename), filename);
+				ss >> x1 >> y1 >> z1;
+				ss >> x2 >> y2 >> z2;
+				ss >> x3 >> y3 >> z3;
+				FIBITMAP* image = FreeImage_Load(FreeImage_GetFIFFromFilename(filename.c_str()), filename.c_str());
 				Parallelogram side = Parallelogram(Point(x1, y1, z1), Point(x2, y2, z2), Point(x3, y3, z3));
 				envImages.push_back(image);
 				envSides.push_back(side);
@@ -455,6 +460,21 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 			else if (buf == "dof"){
 				ss >> depth_dist;
 				dof = true;
+			}
+			else if (buf == "frames") {
+				ss >> frames;
+			}
+			else if (buf == "velocity") {
+				float dx, dy, dz;
+				ss >> dx >> dy >> dz;
+				velocities.push_back(Vector3f(dx, dy, dz));
+				velos.push_back((GeometricPrimitive*)objs.back());
+			}
+			else if (buf == "acceleration") {
+				float dx, dy, dz;
+				ss >> dx >> dy >> dz;
+				accelerations.push_back(Vector3f(dx, dy, dz));
+				accels.push_back((GeometricPrimitive*)objs.back());
 			}
 			else {
 				/*disallow everything else*/
@@ -496,7 +516,6 @@ int main(int argc, char* argv[]) {
 	std::cout << "Initializing scene..." << endl;
 
 	// Begin main loop
-	float nextX = 0.5, nextY = 0.5;
 
 	Film film = Film(width, height);
 
@@ -509,19 +528,29 @@ int main(int argc, char* argv[]) {
 	size_t num_completed = 0;
 
 	std::cout << "Starting render..." << endl;
-	while (nextY <= height) {
-		Ray ray = generateRay(nextX, nextY);
-		Color color = traceRay(ray, 0);
-		film.storeSample(nextX, nextY, color);
+	for (int i = 0; i < frames; i++) {
+		float nextX = 0.5, nextY = 0.5;
+		while (nextY <= height) {
+			Ray ray = generateRay(nextX, nextY);
+			Color color = traceRay(ray, 0);
+			film.storeSample(nextX, nextY, color);
 
-		// Calculate next sample location
-		nextX += aa_step;
-		if (nextX >= width) {
-			nextY += aa_step;
-			nextX = 0.5;
+			// Calculate next sample location
+			nextX += aa_step;
+			if (nextX >= width) {
+				nextY += aa_step;
+				nextX = 0.5;
+			}
+			if ((++num_completed) % perc == 0){
+				cout << "Progress: " << num_completed / perc << "% -- " << (clock() - start) / (double)CLOCKS_PER_SEC << "s\n";
+			}
 		}
-		if ((++num_completed) % perc == 0){
-			cout << "Progress: " << num_completed / perc << "% -- " << (clock() - start) / (double)CLOCKS_PER_SEC << "s\n";
+
+		for (int j = 0; j < accelerations.size(); j++) {
+			accels.at(j)->shape->setCenter(accels.at(j)->shape->getCenter() + accelerations.at(j) * i);
+		}
+		for (int j = 0; j < velocities.size(); j++) {
+			velos.at(j)->shape->setCenter(velos.at(j)->shape->getCenter() + velocities.at(j));
 		}
 	}
 
