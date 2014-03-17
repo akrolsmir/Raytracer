@@ -1,0 +1,8 @@
+Run as:
+$ raytracer.exe input-50
+
+Runtime:
+29.618s
+
+Features:
+Antialiasing, environment mapping, refractions

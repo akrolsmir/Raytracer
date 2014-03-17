@@ -1,0 +1,8 @@
+Run as:
+$ raytracer.exe input-51
+
+Runtime:
+39.696s
+
+Features:
+Motion blur, environment mapping

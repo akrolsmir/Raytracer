@@ -1,0 +1,3 @@
+Input file: Input/input.test
+Time ran: 0.493s
+Demonstrates phong shading, lightning, spheres translated along the positive z-axis
