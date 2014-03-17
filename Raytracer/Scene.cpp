@@ -97,35 +97,19 @@ bool refract(Vector3f d, Vector3f n, float nt, Vector3f* t) {
 
 float *beta = new float, *gamma = new float;
 FIBITMAP *negZimage, *posZimage, *negYimage, *posYimage, *negXimage, *posXimage;
-
-Parallelogram negZ = Parallelogram(Point(-100, -100, -100), Point(100, -100, -100), Point(-100, 100, -100));
-Parallelogram posZ = Parallelogram(Point(-100, -100, 100), Point(100, -100, 100), Point(-100, 100, 100));
-// TODO code in other parts of the environment map
+vector<Parallelogram> envSides;
+vector<FIBITMAP*> envImages;
 
 Color environmentMap(Ray ray) {
-	RGBQUAD rgbquad;
-	if (negZ.intersect(ray, beta, gamma)) {
-		FreeImage_GetPixelColor(negZimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
-		return Color(rgbquad.rgbRed / 255.0, rgbquad.rgbGreen / 255.0, rgbquad.rgbBlue / 255.0);
+	for (int i = 0; i < envSides.size(); i++){
+		if (envSides.at(i).intersect(ray, beta, gamma)) {
+			RGBQUAD rgbquad;
+			FIBITMAP* image = envImages.at(i);
+			FreeImage_GetPixelColor(image, (int)(FreeImage_GetWidth(image) * *beta), (int)(FreeImage_GetWidth(image) * *gamma), &rgbquad);
+			return Color(rgbquad.rgbRed / 255.0, rgbquad.rgbGreen / 255.0, rgbquad.rgbBlue / 255.0);
+		}
 	}
-	else if (posZ.intersect(ray, beta, gamma)) {
-		FreeImage_GetPixelColor(posZimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
-		return Color(rgbquad.rgbRed / 255.0, rgbquad.rgbGreen / 255.0, rgbquad.rgbBlue / 255.0);
-	}
-	//else if (negY.intersect(ray, beta, gamma)) {
-	//	FreeImage_GetPixelColor(negYimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
-	//}
-	//else if (posY.intersect(ray, beta, gamma)) {
-	//	FreeImage_GetPixelColor(posYimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
-	//}
-	//else if (negX.intersect(ray, beta, gamma)) {
-	//	FreeImage_GetPixelColor(negXimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
-	//}
-	//else if (posX.intersect(ray, beta, gamma)) {
-	//	FreeImage_GetPixelColor(posXimage, (int)(2048 * *beta), (int)(2048 * *gamma), &rgbquad);
-	//}
-	
-	return Color(0, 0, 0);
+	return ka_scene;
 }
 
 float* t_hit = new float;
@@ -139,8 +123,7 @@ Color traceRay(Ray ray, int depth) {
 
 	// Return black if no intersection
 	if (!aabb->intersect(ray, t_hit, in)){
-		return ka_scene;
-		//return environmentMap(ray);
+		return environmentMap(ray);
 	}
 
 	Color result = ka_scene;
@@ -442,12 +425,32 @@ bool parse_file(ifstream* file, string* error, int* err_loc){
 			else if (buf == "reflectance"){
 				float r, g, b;
 				ss >> r >> g >> b;
-				objs.back()->getBRDFPointer()->kr = Color(r, g, b);
+				if (curr_obj.size() == 0){
+					objs.back()->setkr(Color(r, g, b));
+				}
+				else {
+					curr_obj.back()->setkr(Color(r, g, b));
+				}
 			}
 			else if (buf == "refraction"){
 				float s;
 				ss >> s;
-				objs.back()->getBRDFPointer()->n = s;
+				if (curr_obj.size() == 0){
+					objs.back()->setn(s);
+				}
+				else {
+					curr_obj.back()->setn(s);
+				}
+			}
+			else if (buf == "envmap"){
+				char* filename;
+				float x1, y1, z1, x2, y2, z2, x3, y3, z3;
+				ss >> filename;
+				ss >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
+				FIBITMAP* image = FreeImage_Load(FreeImage_GetFIFFromFilename(filename), filename);
+				Parallelogram side = Parallelogram(Point(x1, y1, z1), Point(x2, y2, z2), Point(x3, y3, z3));
+				envImages.push_back(image);
+				envSides.push_back(side);
 			}
 			else if (buf == "dof"){
 				ss >> depth_dist;
@@ -492,19 +495,12 @@ int main(int argc, char* argv[]) {
 	std::cout << (clock() - start) / (double)CLOCKS_PER_SEC << "s: " << "Parsing complete" << endl;
 	std::cout << "Initializing scene..." << endl;
 
-	negZimage = FreeImage_Load(FreeImage_GetFIFFromFilename("negz.jpg"), "negz.jpg");
-	posZimage = FreeImage_Load(FreeImage_GetFIFFromFilename("posz.jpg"), "posz.jpg");
-	// TODO other sides of environment map
-
 	// Begin main loop
 	float nextX = 0.5, nextY = 0.5;
 
 	Film film = Film(width, height);
 
 	aabb = new AABB(geo_primitives);
-
-	//objs.push_back(new GeometricPrimitive(new Triangle(Point(0.0, 0.0, 0.0), Point(0.0, 0.5, 0.0), Point(0.5, 0.0, 0.0)), 
-	//		BRDF(Color(0.1, 0.1, 0.1), Color(0.3, 0.3, 0.0), Color(0.8, 0.8, 0.8), 0)));
 
 	primitives = AggregatePrimitive(objs);
 

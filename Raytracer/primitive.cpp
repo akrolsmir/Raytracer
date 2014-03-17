@@ -34,6 +34,12 @@ void Primitive::setka(Color ka){
 void Primitive::setsp(float sp){
 	UNIMPLEMENTED("setsp");
 }
+void Primitive::setkr(Color kr){
+	UNIMPLEMENTED("setka");
+}
+void Primitive::setn(float n){
+	UNIMPLEMENTED("setsp");
+}
 
 
 GeometricPrimitive::GeometricPrimitive(Shape* shape, BRDF brdf) :
@@ -102,6 +108,12 @@ void GeometricPrimitive::setka(Color ka){
 }
 void GeometricPrimitive::setsp(float sp){
 	brdf.sp = sp;
+}
+void GeometricPrimitive::setkr(Color kr){
+	brdf.kr = kr;
+}
+void GeometricPrimitive::setn(float n){
+	brdf.n = n;
 }
 
 AggregatePrimitive::AggregatePrimitive() :
@@ -173,6 +185,16 @@ void AggregatePrimitive::setka(Color ka){
 void AggregatePrimitive::setsp(float sp){
 	for (size_t i = 0; i < primitives.size(); i++){
 		primitives[i]->setsp(sp);
+	}
+}
+void AggregatePrimitive::setkr(Color kr){
+	for (size_t i = 0; i < primitives.size(); i++){
+		primitives[i]->setkr(kr);
+	}
+}
+void AggregatePrimitive::setn(float n){
+	for (size_t i = 0; i < primitives.size(); i++){
+		primitives[i]->setn(n);
 	}
 }
 

@@ -41,6 +41,8 @@ public:
 	virtual void setks(Color ks);
 	virtual void setka(Color ka);
 	virtual void setsp(float sp);
+	virtual void setkr(Color kr);
+	virtual void setn(float n);
 
 };
 
@@ -94,6 +96,8 @@ public:
 	void setks(Color ks);
 	void setka(Color ka);
 	void setsp(float sp);
+	void setkr(Color kr);
+	void setn(float n);
 };
 
 /**
@@ -117,6 +121,8 @@ public:
 	void setks(Color ks);
 	void setka(Color ka);
 	void setsp(float sp);
+	void setkr(Color kr);
+	void setn(float n);
 
 private:
 	std::vector<Primitive*> primitives;
